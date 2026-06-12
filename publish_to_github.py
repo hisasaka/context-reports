@@ -247,12 +247,19 @@ def build_index_html(reports):
 # --- Git 操作 ---
 
 def git_push():
-    """docs/ の変更を GitHub の main ブランチにプッシュ"""
+    """docs/ の変更を GitHub の main ブランチにプッシュ
 
-    def run_git(*args):
+    一時 worktree に origin/main をチェックアウトして docs/ をコピーし、
+    そこからコミット＆プッシュする。メインの作業ツリー・現在のブランチ・
+    未追跡ファイルには一切触れないため、ローカルの状態に関係なく安全に動く。
+    """
+    import shutil
+    import tempfile
+
+    def run_git(*args, cwd=None):
         result = subprocess.run(
             ["git"] + list(args),
-            cwd=str(BASE_DIR),
+            cwd=str(cwd or BASE_DIR),
             capture_output=True, text=True, timeout=120
         )
         if result.returncode != 0:
@@ -262,47 +269,34 @@ def git_push():
     # リモートの最新状態を取得
     run_git("fetch", "origin")
 
-    # docs/ のみステージング
-    run_git("add", "docs/")
+    tmpdir = tempfile.mkdtemp(prefix="deploy-docs-")
+    worktree = Path(tmpdir) / "wt"
+    try:
+        run_git("worktree", "add", "--detach", str(worktree), "origin/main")
 
-    # 変更があるか確認
-    staged = run_git("diff", "--cached", "--name-only")
-    if not staged:
-        logger.info("  変更なし - プッシュをスキップ")
-        return False
+        # worktree 内の docs/ をローカルの docs/ で置き換え
+        dest_docs = worktree / "docs"
+        if dest_docs.exists():
+            shutil.rmtree(dest_docs)
+        shutil.copytree(DOCS_DIR, dest_docs)
 
-    # 現在のブランチを確認（feature/xxxx ブランチでも main にデプロイできるよう対応）
-    current_branch = run_git("rev-parse", "--abbrev-ref", "HEAD")
-    switched = False
+        run_git("add", "docs/", cwd=worktree)
+        staged = run_git("diff", "--cached", "--name-only", cwd=worktree)
+        if not staged:
+            logger.info("  変更なし - プッシュをスキップ")
+            return False
 
-    if current_branch != "main":
-        # feature ブランチから main にデプロイ:
-        # docs/ をスタッシュ → main に切り替え → pull → stash から docs/ を復元
-        logger.info(f"  ブランチ {current_branch} → main に切り替えてデプロイ")
-        run_git("stash", "push", "--include-untracked", "-m", "deploy-docs-tmp")
-        run_git("checkout", "main")
-        run_git("pull", "--rebase", "--autostash", "origin", "main")
-        run_git("checkout", "stash@{0}", "--", "docs/")
-        run_git("stash", "drop")
-        run_git("add", "docs/")
-        switched = True
-    else:
-        run_git("pull", "--rebase", "--autostash", "origin", "main")
-
-    # コミット
-    today = datetime.now().strftime("%Y-%m-%d")
-    run_git("commit", "-m", f"Update reports: {today}")
-
-    # プッシュ
-    run_git("push", "origin", "main")
-    logger.info("  GitHub にプッシュ完了")
-
-    # 元のブランチに戻る
-    if switched:
-        run_git("checkout", current_branch)
-        logger.info(f"  ブランチを {current_branch} に戻しました")
-
-    return True
+        today = datetime.now().strftime("%Y-%m-%d")
+        run_git("commit", "-m", f"Update reports: {today}", cwd=worktree)
+        run_git("push", "origin", "HEAD:main", cwd=worktree)
+        logger.info("  GitHub にプッシュ完了")
+        return True
+    finally:
+        try:
+            run_git("worktree", "remove", "--force", str(worktree))
+        except Exception:
+            pass
+        shutil.rmtree(tmpdir, ignore_errors=True)
 
 
 # --- メイン ---
