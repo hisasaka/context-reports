@@ -4,6 +4,7 @@ cd /d "%~dp0"
 
 set PYTHON=C:\Python314\python.exe
 set PYTHONPATH=C:\Users\hisas\AppData\Roaming\Python\Python314\site-packages;C:\Python314\Lib\site-packages
+set PYTHONIOENCODING=utf-8
 
 REM ログファイルにタイムスタンプを記録
 echo ====================================== >> run_collection.log

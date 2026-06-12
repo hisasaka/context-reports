@@ -247,7 +247,7 @@ def build_index_html(reports):
 # --- Git 操作 ---
 
 def git_push():
-    """docs/ の変更を GitHub にプッシュ"""
+    """docs/ の変更を GitHub の main ブランチにプッシュ"""
 
     def run_git(*args):
         result = subprocess.run(
@@ -271,14 +271,32 @@ def git_push():
         logger.info("  変更なし - プッシュをスキップ")
         return False
 
+    # 現在のブランチを確認（feature/xxxx ブランチでも main にデプロイできるよう対応）
+    current_branch = run_git("rev-parse", "--abbrev-ref", "HEAD")
+    switched = False
+
+    if current_branch != "main":
+        # staging を維持したまま main に切り替え、origin/main に追いつかせる
+        logger.info(f"  ブランチ {current_branch} → main に切り替えてデプロイ")
+        run_git("checkout", "main")
+        run_git("pull", "--rebase", "origin", "main")
+        switched = True
+    else:
+        run_git("pull", "--rebase", "origin", "main")
+
     # コミット
     today = datetime.now().strftime("%Y-%m-%d")
     run_git("commit", "-m", f"Update reports: {today}")
 
-    # リモートの変更をマージしてからプッシュ（ブランチ保護に対応）
-    run_git("merge", "--no-edit", "origin/main")
+    # プッシュ
     run_git("push", "origin", "main")
     logger.info("  GitHub にプッシュ完了")
+
+    # 元のブランチに戻る
+    if switched:
+        run_git("checkout", current_branch)
+        logger.info(f"  ブランチを {current_branch} に戻しました")
+
     return True
 
 

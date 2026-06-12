@@ -13,6 +13,13 @@ for _p in [_base,
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
+# Windowsコンソール(CP932)でUnicode文字が含まれるタイトルをprintするとクラッシュする問題を回避
+import io as _io
+if hasattr(sys.stdout, 'buffer'):
+    sys.stdout = _io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+if hasattr(sys.stderr, 'buffer'):
+    sys.stderr = _io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
 import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext
 import json
@@ -1326,7 +1333,8 @@ class AIGenerator:
 
         try:
             import google.generativeai as genai
-            genai.configure(api_key=api_key)
+            # transport='rest' でgRPC SSL証明書エラー回避（Windows環境対策）
+            genai.configure(api_key=api_key, transport='rest')
             self.model = genai.GenerativeModel('models/gemini-2.0-flash-exp')
         except ImportError:
             raise ImportError("google-generativeai パッケージがインストールされていません。pip install google-generativeai を実行してください。")
@@ -1394,7 +1402,8 @@ class StockResolver:
             raise ValueError("GEMINI_API_KEY が設定されていません")
         try:
             import google.generativeai as genai
-            genai.configure(api_key=api_key)
+            # transport='rest' でgRPC SSL証明書エラー回避（Windows環境対策）
+            genai.configure(api_key=api_key, transport='rest')
             self.model = genai.GenerativeModel('models/gemini-2.0-flash-exp')
         except ImportError:
             raise ImportError("google-generativeai パッケージが必要です")
