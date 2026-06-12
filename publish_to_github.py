@@ -279,10 +279,10 @@ def git_push():
         # staging を維持したまま main に切り替え、origin/main に追いつかせる
         logger.info(f"  ブランチ {current_branch} → main に切り替えてデプロイ")
         run_git("checkout", "main")
-        run_git("pull", "--rebase", "origin", "main")
+        run_git("pull", "--rebase", "--autostash", "origin", "main")
         switched = True
     else:
-        run_git("pull", "--rebase", "origin", "main")
+        run_git("pull", "--rebase", "--autostash", "origin", "main")
 
     # コミット
     today = datetime.now().strftime("%Y-%m-%d")
