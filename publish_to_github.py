@@ -276,10 +276,15 @@ def git_push():
     switched = False
 
     if current_branch != "main":
-        # staging を維持したまま main に切り替え、origin/main に追いつかせる
+        # feature ブランチから main にデプロイ:
+        # docs/ をスタッシュ → main に切り替え → pull → stash から docs/ を復元
         logger.info(f"  ブランチ {current_branch} → main に切り替えてデプロイ")
+        run_git("stash", "push", "--include-untracked", "-m", "deploy-docs-tmp")
         run_git("checkout", "main")
         run_git("pull", "--rebase", "--autostash", "origin", "main")
+        run_git("checkout", "stash@{0}", "--", "docs/")
+        run_git("stash", "drop")
+        run_git("add", "docs/")
         switched = True
     else:
         run_git("pull", "--rebase", "--autostash", "origin", "main")
