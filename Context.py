@@ -2085,7 +2085,7 @@ class ContextCollectorApp:
             self.tray_icon.stop()
         if self.root:
             self.root.quit()
-        sys.exit(0)
+        os._exit(0)  # sys.exit はこのスレッドしか落とさないため、tray_icon.run() がメインスレッドをブロックし続ける
     
     def run_tkinter(self):
         """Tkinterのメインループを実行"""
