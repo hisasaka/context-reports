@@ -246,40 +246,83 @@ def build_index_html(reports):
 
 # --- Git 操作 ---
 
-def git_push():
-    """docs/ の変更を GitHub にプッシュ"""
+# このスクリプトが所有・公開してよい docs/ 内のファイル。
+# リモートの docs/ には他システム（speed_monitor_system の speed-report-*.html,
+# speed-monitor.html や、トップの index.html）が同居している。
+# ここに無いファイルへ触れる（上書き・削除する）ことは絶対に禁止。
+# ※過去に docs/ を丸ごと置き換えて speed-report を消す障害が発生した（2026-06-11〜13）。
+OWNED_FILE_PATTERNS = ["report-*.html", "context-reports.html"]
 
-    def run_git(*args):
+
+def git_push():
+    """このスクリプトが所有するレポートのみを GitHub の main ブランチにプッシュ
+
+    一時 worktree に origin/main をチェックアウトし、docs/ のうち
+    OWNED_FILE_PATTERNS に一致するファイルだけを上書きコピーして
+    コミット＆プッシュする。worktree 上のファイルは一切削除しないため、
+    他システムが公開したファイルが巻き戻ったり消えたりすることはない。
+    他システムと同時刻にプッシュが衝突した場合は取得し直して再試行する。
+    """
+    import shutil
+    import tempfile
+
+    def run_git(*args, cwd=None):
         result = subprocess.run(
             ["git"] + list(args),
-            cwd=str(BASE_DIR),
+            cwd=str(cwd or BASE_DIR),
             capture_output=True, text=True, timeout=120
         )
         if result.returncode != 0:
             raise RuntimeError(f"git {' '.join(args)} failed: {result.stderr.strip()}")
         return result.stdout.strip()
 
-    # リモートの最新状態を取得
-    run_git("fetch", "origin")
+    last_error = None
+    for attempt in range(1, 4):
+        # リモートの最新状態を取得
+        run_git("fetch", "origin")
 
-    # docs/ のみステージング
-    run_git("add", "docs/")
+        tmpdir = tempfile.mkdtemp(prefix="deploy-docs-")
+        worktree = Path(tmpdir) / "wt"
+        try:
+            run_git("worktree", "add", "--detach", str(worktree), "origin/main")
 
-    # 変更があるか確認
-    staged = run_git("diff", "--cached", "--name-only")
-    if not staged:
-        logger.info("  変更なし - プッシュをスキップ")
-        return False
+            # 所有ファイルだけを worktree の docs/ へ上書きコピー（削除はしない）
+            dest_docs = worktree / "docs"
+            dest_docs.mkdir(exist_ok=True)
+            for pattern in OWNED_FILE_PATTERNS:
+                for src in sorted(DOCS_DIR.glob(pattern)):
+                    shutil.copy2(src, dest_docs / src.name)
 
-    # コミット
-    today = datetime.now().strftime("%Y-%m-%d")
-    run_git("commit", "-m", f"Update reports: {today}")
+            run_git("add", "docs/", cwd=worktree)
+            staged = run_git("diff", "--cached", "--name-only", cwd=worktree)
+            if not staged:
+                logger.info("  変更なし - プッシュをスキップ")
+                return False
 
-    # リモートの変更をマージしてからプッシュ（ブランチ保護に対応）
-    run_git("merge", "--no-edit", "origin/main")
-    run_git("push", "origin", "main")
-    logger.info("  GitHub にプッシュ完了")
-    return True
+            # 万一所有外のファイルが削除としてステージされていたら異常なので中断
+            deleted = run_git("diff", "--cached", "--name-only", "--diff-filter=D", cwd=worktree)
+            if deleted:
+                raise RuntimeError(f"想定外のファイル削除を検出したため中断: {deleted}")
+
+            today = datetime.now().strftime("%Y-%m-%d")
+            run_git("commit", "-m", f"Update reports: {today}", cwd=worktree)
+            try:
+                run_git("push", "origin", "HEAD:main", cwd=worktree)
+            except RuntimeError as e:
+                # 他システムが先にプッシュした場合（non-fast-forward）は再試行
+                last_error = e
+                logger.warning(f"  プッシュ失敗（{attempt}/3 回目）: {e}")
+                continue
+            logger.info("  GitHub にプッシュ完了")
+            return True
+        finally:
+            try:
+                run_git("worktree", "remove", "--force", str(worktree))
+            except Exception:
+                pass
+            shutil.rmtree(tmpdir, ignore_errors=True)
+
+    raise RuntimeError(f"3回再試行してもプッシュできませんでした: {last_error}")
 
 
 # --- メイン ---
