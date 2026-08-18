@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>統合レポート - 2026-08-17 - 収集レポート</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Yu Gothic UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f9;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        header {
+            border-bottom: 3px solid #0078d4;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        header h1 {
+            color: #0078d4;
+            font-size: 2em;
+            margin: 0;
+        }
+        .summary {
+            background-color: #e9f7ff;
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 5px solid #0078d4;
+        }
+        .summary p {
+            margin: 4px 0;
+            font-size: 1em;
+        }
+        /* ずんだもんラジオ */
+        .radio-player {
+            background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+            border: 1px solid #a5d6a7;
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin-bottom: 20px;
+        }
+        .radio-title {
+            font-weight: 700;
+            font-size: 1.05em;
+            color: #2e7d32;
+        }
+        .radio-desc {
+            font-size: 0.85em;
+            color: #558b2f;
+            margin-top: 2px;
+        }
+        .radio-player audio {
+            width: 100%;
+            margin-top: 8px;
+        }
+        /* 目次 */
+        .toc {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin-bottom: 28px;
+        }
+        .toc-title {
+            font-weight: 700;
+            font-size: 1em;
+            margin-bottom: 8px;
+            color: #444;
+        }
+        .toc-list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .toc-list li {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .toc-list a {
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9em;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: #fff;
+            border: 1px solid currentColor;
+            transition: opacity 0.15s;
+        }
+        .toc-list a:hover { opacity: 0.75; }
+        .toc-count {
+            font-size: 0.78em;
+            color: #888;
+            white-space: nowrap;
+        }
+        /* キーワードセクション */
+        .source-section {
+            margin-bottom: 36px;
+            padding: 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+        .source-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #222;
+            border-left: 5px solid #0078d4;
+            padding: 6px 10px;
+            margin: 0 0 16px 0;
+            font-size: 1.35em;
+            background: #fafafa;
+            border-radius: 0 4px 4px 0;
+        }
+        .kw-badge {
+            font-size: 0.85em;
+        }
+        .source-count {
+            font-size: 0.75em;
+            font-weight: 400;
+            color: #666;
+        }
+        .result-item {
+            margin-bottom: 16px;
+            padding: 13px 15px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            background-color: #fafafa;
+            transition: border-color 0.15s;
+        }
+        .result-item:hover { border-color: #bbb; }
+        .item-title {
+            font-size: 1.1em;
+            color: #2c3e50;
+            margin: 0 0 8px 0;
+        }
+        .item-title a {
+            text-decoration: none;
+            color: #005a99;
+        }
+        .item-title a:hover { text-decoration: underline; }
+        .item-meta, .item-url {
+            font-size: 0.88em;
+            color: #555;
+            margin: 3px 0;
+        }
+        .item-url a {
+            color: #0078d4;
+            word-break: break-all;
+        }
+        .item-related { color: #666; }
+        .kw-tag {
+            display: inline-block;
+            background: #e8f0fe;
+            color: #1a73e8;
+            border-radius: 3px;
+            padding: 1px 6px;
+            font-size: 0.82em;
+            margin: 0 2px;
+        }
+        .item-snippet {
+            margin-top: 8px;
+            padding-top: 6px;
+            border-top: 1px dotted #ccc;
+            font-style: italic;
+            font-size: 0.92em;
+            line-height: 1.4;
+            color: #555;
+        }
+        .related-stocks {
+            margin-top: 8px;
+            padding-top: 6px;
+            border-top: 1px dotted #ccc;
+            font-size: 0.86em;
+            color: #444;
+        }
+        .stock-link {
+            display: inline-block;
+            background: #fff3e0;
+            color: #e65100;
+            border: 1px solid #ffb74d;
+            border-radius: 3px;
+            padding: 1px 6px;
+            font-size: 0.9em;
+            text-decoration: none;
+            font-weight: 700;
+            margin-right: 2px;
+            transition: background 0.15s;
+        }
+        .stock-link:hover { background: #ffe0b2; }
+        .stock-company {
+            color: #555;
+            margin-right: 10px;
+        }
+        .back-to-top {
+            text-align: right;
+            font-size: 0.82em;
+            margin-top: 10px;
+        }
+        .back-to-top a {
+            color: #888;
+            text-decoration: none;
+        }
+        .back-to-top a:hover { color: #0078d4; }
+        footer {
+            text-align: center;
+            font-size: 0.8em;
+            color: #999;
+            margin-top: 20px;
+            padding-top: 12px;
+            border-top: 1px solid #eee;
+        }
+        @media (max-width: 640px) {
+            .container { margin: 10px; padding: 14px; }
+            header h1 { font-size: 1.4em; }
+            .source-title { font-size: 1.1em; }
+        }
+    </style>
+</head>
+<body>
+<div style="max-width:1000px;margin:10px auto;padding:0 20px;">
+    <a href="context-reports.html" style="color:#0078d4;text-decoration:none;font-size:0.9em;">
+        &#8592; レポート一覧に戻る
+    </a>
+</div>
+    <div class="container" id="top">
+        <header>
+            <h1>統合レポート - 2026-08-17 - 収集レポート</h1>
+        </header>
+
+        <div class="summary">
+            <p><strong>収集日時:</strong> 2026-08-17</p>
+            <p><strong>総件数:</strong> 111件 / キーワード数: 31件</p>
+        </div>
+
+        <div class="radio-player" id="radio-player" style="display:none;">
+            <div class="radio-title">🎙️ ずんだもんニュースラジオ</div>
+            <div class="radio-desc">今日のニュースをずんだもんが読み上げるのだ</div>
+            <audio controls preload="none" src="radio-2026-08-17.mp3"></audio>
+        </div>
+        <script>
+        fetch("radio-2026-08-17.mp3", { method: "HEAD" }).then(function (r) {
+            if (r.ok) document.getElementById("radio-player").style.display = "block";
+        }).catch(function () { });
+        </script>
+
+        
+        <nav class="toc">
+            <div class="toc-title">📋 キーワード一覧 (31件)</div>
+            <ul class="toc-list">
+<li><a href="#kw_0" style="color:#0078d4;">AI</a><span class="toc-count">19件</span></li>
+<li><a href="#kw_1" style="color:#107c10;">AIガバナンス</a><span class="toc-count">1件</span></li>
+<li><a href="#kw_2" style="color:#d83b01;">AI医療</a><span class="toc-count">3件</span></li>
+<li><a href="#kw_3" style="color:#5c2d91;">AI画像生成</a><span class="toc-count">3件</span></li>
+<li><a href="#kw_4" style="color:#008272;">AI規制</a><span class="toc-count">2件</span></li>
+<li><a href="#kw_5" style="color:#004b50;">AI金融</a><span class="toc-count">3件</span></li>
+<li><a href="#kw_6" style="color:#ca5010;">Anthropic</a><span class="toc-count">7件</span></li>
+<li><a href="#kw_7" style="color:#0099bc;">ChatGPT</a><span class="toc-count">4件</span></li>
+<li><a href="#kw_8" style="color:#8764b8;">Claude</a><span class="toc-count">2件</span></li>
+<li><a href="#kw_9" style="color:#038387;">Gemini</a><span class="toc-count">4件</span></li>
+<li><a href="#kw_10" style="color:#c43e1c;">GPT</a><span class="toc-count">4件</span></li>
+<li><a href="#kw_11" style="color:#00b294;">Llama</a><span class="toc-count">1件</span></li>
+<li><a href="#kw_12" style="color:#6b69d6;">LLM</a><span class="toc-count">3件</span></li>
+<li><a href="#kw_13" style="color:#bf0077;">Meta AI</a><span class="toc-count">5件</span></li>
+<li><a href="#kw_14" style="color:#498205;">Microsoft AI</a><span class="toc-count">1件</span></li>
+<li><a href="#kw_15" style="color:#7a7574;">NVIDIA AI</a><span class="toc-count">3件</span></li>
+<li><a href="#kw_16" style="color:#69797e;">OpenAI</a><span class="toc-count">4件</span></li>
+<li><a href="#kw_17" style="color:#767676;">xAI</a><span class="toc-count">2件</span></li>
+<li><a href="#kw_18" style="color:#0063b1;">ディープフェイク</a><span class="toc-count">1件</span></li>
+<li><a href="#kw_19" style="color:#e81123;">マルチモーダルAI</a><span class="toc-count">4件</span></li>
+<li><a href="#kw_20" style="color:#0078d4;">ロボティクス</a><span class="toc-count">1件</span></li>
+<li><a href="#kw_21" style="color:#107c10;">人工知能</a><span class="toc-count">9件</span></li>
+<li><a href="#kw_22" style="color:#d83b01;">大規模言語モデル</a><span class="toc-count">2件</span></li>
+<li><a href="#kw_23" style="color:#5c2d91;">株式分割</a><span class="toc-count">2件</span></li>
+<li><a href="#kw_24" style="color:#008272;">機械学習</a><span class="toc-count">1件</span></li>
+<li><a href="#kw_25" style="color:#004b50;">水素ガス</a><span class="toc-count">1件</span></li>
+<li><a href="#kw_26" style="color:#ca5010;">水素研究</a><span class="toc-count">3件</span></li>
+<li><a href="#kw_27" style="color:#0099bc;">生成AI</a><span class="toc-count">6件</span></li>
+<li><a href="#kw_28" style="color:#8764b8;">自動運転</a><span class="toc-count">6件</span></li>
+<li><a href="#kw_29" style="color:#038387;">自社株買い</a><span class="toc-count">3件</span></li>
+<li><a href="#kw_30" style="color:#c43e1c;">著作権 AI</a><span class="toc-count">1件</span></li>
+            </ul>
+        </nav>
+
+        <section class="source-section" id="kw_0">
+  <h2 class="source-title" style="border-left-color:#0078d4;"><span class="kw-badge" style="background:#0078d4;">🔑</span> AI <span class="source-count">(19件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMiUEFVX3lxTE1rM21pRnZwcW5kcF9GeFh6dFRXZWx0MnRVNzltWkplRTg3Sm0tU3N2ZHhGQTVWeEwtZ21NRVppZUtrQUxYZGZ1OTFVTFFyOGhS?oc=5" target="_blank">オープンＡＩで経営幹部が相次ぎ退社、半年前加入の「中心人物」も…新規株式公開を前に「危険信号」 - Yahoo!ニュース</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-meta item-related">関連キーワード: <span class="kw-tag">AI</span><span class="kw-tag">OpenAI</span><span class="kw-tag">人工知能</span></p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiUEFVX3lxTE1rM21pRnZwcW5kcF9GeFh6dFRXZWx0MnRVNzltWkplRTg3Sm0tU3N2ZHhGQTVWeEwtZ21NRVppZUtrQUxYZGZ1OTFVTFFyOGhS?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiUEFVX3lxTE1rM21pRnZwcW5kcF9GeFh6dFRXZWx0MnRVNzltWkplRTg3Sm0tU3N2ZHhGQTVWeEwtZ21NRVppZUtrQUxYZGZ1OTFVTFFyOGhS?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">2. <a href="https://news.google.com/rss/articles/CBMiggFBVV95cUxNZlBwbTRMcGkxZDZjMmNfUUlXV3lOd1dFZl9wMHRpZjhPZXZtXzJWSGtiUXc4UUE0SHllYzdkcTlVY3gyY3RuSFBvWnNfc1FFMGV3ZkxwVWJ5ZHVkUVY2QTFJeWFwcHJPWEE3UHR6T2VUZEgydDdUbzNnZ0pPcGk4Q1BB?oc=5" target="_blank">米政権、ＡＩ連携国に踏み絵か 中国の枠組みと二股なら除外と警告 - ロイター</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-meta item-related">関連キーワード: <span class="kw-tag">AI</span><span class="kw-tag">人工知能</span></p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiggFBVV95cUxNZlBwbTRMcGkxZDZjMmNfUUlXV3lOd1dFZl9wMHRpZjhPZXZtXzJWSGtiUXc4UUE0SHllYzdkcTlVY3gyY3RuSFBvWnNfc1FFMGV3ZkxwVWJ5ZHVkUVY2QTFJeWFwcHJPWEE3UHR6T2VUZEgydDdUbzNnZ0pPcGk4Q1BB?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiggFBVV95cUxNZlBwbTRMcGkxZDZjMmNfUUlXV3lOd1dFZl9wMHRpZjhPZXZtXzJWSGtiUXc4UUE0SHllYzdkcTlVY3gyY3RuSFBvWnNfc1FFMGV3ZkxwVWJ5ZHVkUVY2QTFJeWFwcHJPWEE3UHR6T2VUZEgydDdUbzNnZ0pPcGk4Q1BB?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">3. <a href="https://news.google.com/rss/articles/CBMiY0FVX3lxTE5WcHZpX0RUT1ZLSmlqUHVwUEpNcUNsZVZmQy1GcDJ5NFpNU1hnMTVacGUxSU9CQ3lyc084cFFHUmQ3UGRaWFZrUVE0ZjgwMGhMTUdYVWZuQ2gwRnFnR2hjSjRtVQ?oc=5" target="_blank">米国、韓国を含む３５カ国に「中国主導のＡＩ協力機構への不参加」を求める方針 : 日本•国際 - ハンギョレ新聞</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-meta item-related">関連キーワード: <span class="kw-tag">AI</span><span class="kw-tag">人工知能</span></p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiY0FVX3lxTE5WcHZpX0RUT1ZLSmlqUHVwUEpNcUNsZVZmQy1GcDJ5NFpNU1hnMTVacGUxSU9CQ3lyc084cFFHUmQ3UGRaWFZrUVE0ZjgwMGhMTUdYVWZuQ2gwRnFnR2hjSjRtVQ?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiY0FVX3lxTE5WcHZpX0RUT1ZLSmlqUHVwUEpNcUNsZVZmQy1GcDJ5NFpNU1hnMTVacGUxSU9CQ3lyc084cFFHUmQ3UGRaWFZrUVE0ZjgwMGhMTUdYVWZuQ2gwRnFnR2hjSjRtVQ?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">4. <a href="https://news.google.com/rss/articles/CBMijAFBVV95cUxPcG1tbXlNOUZPYllUYmx0Ty1UcnVDMTU1d1hXM211OERvSGZzMXJ2elpvYnVJZ3Ixbk1aNUxHQWtuY1ZQNDR2bE1FNTA5NndWUGFtd1k4ei1JbmoyejJBOUZuZnVZWUlLWnF3U0ZYaklSMm9oTmUyZ3FCb2JxbFdYRTNpY2Q2dE4zYlJrNA?oc=5" target="_blank">世界AI大会で見た中国の実力 オープン戦略とトークン経済 - 日本経済新聞</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-meta item-related">関連キーワード: <span class="kw-tag">AI</span><span class="kw-tag">人工知能</span></p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMijAFBVV95cUxPcG1tbXlNOUZPYllUYmx0Ty1UcnVDMTU1d1hXM211OERvSGZzMXJ2elpvYnVJZ3Ixbk1aNUxHQWtuY1ZQNDR2bE1FNTA5NndWUGFtd1k4ei1JbmoyejJBOUZuZnVZWUlLWnF3U0ZYaklSMm9oTmUyZ3FCb2JxbFdYRTNpY2Q2dE4zYlJrNA?oc=5" target="_blank">https://news.google.com/rss/articles/CBMijAFBVV95cUxPcG1tbXlNOUZPYllUYmx0Ty1UcnVDMTU1d1hXM211OERvSGZzMXJ2elpvYnVJZ3Ixbk1aNUxHQWtuY1ZQNDR2bE1FNTA5NndWUGFtd1k4ei1JbmoyejJBOUZuZnVZWUlLWnF3U0ZYaklSMm9oTmUyZ3FCb2JxbFdYRTNpY2Q2dE4zYlJrNA?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">5. <a href="https://news.google.com/rss/articles/CBMiU0FVX3lxTE8xM0Q2blBzOUhxR1ppdWE5VkZPbWwyLVRfVENSU256YWRFcG1ZbWtRdHJvM0d3U09sTEN1dTZESndZUGJxcjdXcjJzWE5xMGViQWtF?oc=5" target="_blank">「AI部品表」に注目--EUサイバーセキュリティ規制対応が背景 - ZDNET Japan</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-meta item-related">関連キーワード: <span class="kw-tag">AI</span><span class="kw-tag">AI規制</span></p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiU0FVX3lxTE8xM0Q2blBzOUhxR1ppdWE5VkZPbWwyLVRfVENSU256YWRFcG1ZbWtRdHJvM0d3U09sTEN1dTZESndZUGJxcjdXcjJzWE5xMGViQWtF?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiU0FVX3lxTE8xM0Q2blBzOUhxR1ppdWE5VkZPbWwyLVRfVENSU256YWRFcG1ZbWtRdHJvM0d3U09sTEN1dTZESndZUGJxcjdXcjJzWE5xMGViQWtF?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">6. <a href="https://news.google.com/rss/articles/CBMickFVX3lxTE1pT0otcDVBdTJ1WHgwd19UVDJ1aXhKal9iUHRHeUVXQ2lkTnpkTmsyUUF5S3diR2t4bTRUQnpJbTZOQzNtcllfem11TDNpQ2hLMWFsR1pKU0VPSC1qN3JZRDNXaFl3N0FuV3lTdUxOY2lsUQ?oc=5" target="_blank">「欧州のAI主権」任された“34歳の天才” パリの新星、AI企業Mistralは「救世主」になれるのか（1/3 ページ） - ITmedia</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMickFVX3lxTE1pT0otcDVBdTJ1WHgwd19UVDJ1aXhKal9iUHRHeUVXQ2lkTnpkTmsyUUF5S3diR2t4bTRUQnpJbTZOQzNtcllfem11TDNpQ2hLMWFsR1pKU0VPSC1qN3JZRDNXaFl3N0FuV3lTdUxOY2lsUQ?oc=5" target="_blank">https://news.google.com/rss/articles/CBMickFVX3lxTE1pT0otcDVBdTJ1WHgwd19UVDJ1aXhKal9iUHRHeUVXQ2lkTnpkTmsyUUF5S3diR2t4bTRUQnpJbTZOQzNtcllfem11TDNpQ2hLMWFsR1pKU0VPSC1qN3JZRDNXaFl3N0FuV3lTdUxOY2lsUQ?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">7. <a href="https://news.google.com/rss/articles/CBMiV0FVX3lxTE5rM3BJVTU3TlpoWnVTLVc2OVRvaDVmZ09LNk5IdW1kRFM1OWhPRTNlcG1JaGtFLV9GLVk4SnJZUG9YY29FNU9Qb295bUxXbkZObmVJc1VoQQ?oc=5" target="_blank">AI企業の姿なき負債､債券市場が懸念 - 四季報オンライン</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiV0FVX3lxTE5rM3BJVTU3TlpoWnVTLVc2OVRvaDVmZ09LNk5IdW1kRFM1OWhPRTNlcG1JaGtFLV9GLVk4SnJZUG9YY29FNU9Qb295bUxXbkZObmVJc1VoQQ?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiV0FVX3lxTE5rM3BJVTU3TlpoWnVTLVc2OVRvaDVmZ09LNk5IdW1kRFM1OWhPRTNlcG1JaGtFLV9GLVk4SnJZUG9YY29FNU9Qb295bUxXbkZObmVJc1VoQQ?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">8. <a href="https://news.google.com/rss/articles/CBMibEFVX3lxTE0tZXVJSlpwT3RzeUxwaThxY004OTh3UVI2UlcycU1ZRXFJMVRYVzVRTFBlbmdrUC1vWnVyc3JTMGkzT0lZV2xqcWxObnpjZFVkanFsY3JVbGxpX2NlTklpRUJvMzd4R3JWSmFBSQ?oc=5" target="_blank">鹿島新社長、AI時代も｢最後は人｣ TSMC熊本工場に技能者7500人超 - 日本経済新聞</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMibEFVX3lxTE0tZXVJSlpwT3RzeUxwaThxY004OTh3UVI2UlcycU1ZRXFJMVRYVzVRTFBlbmdrUC1vWnVyc3JTMGkzT0lZV2xqcWxObnpjZFVkanFsY3JVbGxpX2NlTklpRUJvMzd4R3JWSmFBSQ?oc=5" target="_blank">https://news.google.com/rss/articles/CBMibEFVX3lxTE0tZXVJSlpwT3RzeUxwaThxY004OTh3UVI2UlcycU1ZRXFJMVRYVzVRTFBlbmdrUC1vWnVyc3JTMGkzT0lZV2xqcWxObnpjZFVkanFsY3JVbGxpX2NlTklpRUJvMzd4R3JWSmFBSQ?oc=5</a></p>
+      <div class="related-stocks">📈 関連銘柄: <a href="https://kabutan.jp/stock/?code=1812" target="_blank" class="stock-link">1812</a><span class="stock-company">鹿島建設</span></div>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">9. <a href="https://news.google.com/rss/articles/CBMiigFBVV95cUxQYkNFaTVDSVhOXzdPRkFRMjVSc2JlQnN5R1BzVXdUVVdZdUVxdFlzdUQxYkFoQWwwSmIxVkRJdkFyS1YtdTJBQnhFVVVvMWI1NXJtS1l4WHJTZHZ5c0dfZzlmd2lld0RGMWV0N2NBS1YxbGtvWmp6UDhuY3pKM2QyNksxUE9mNFFkRnfSAY8BQVVfeXFMTV82RTlxbmRnN1NlOXZRTEJORE5hc0FmSlJmWXlSNzJ3TjhiWllTS3pBRzRiWmRheDdVNkM3Tk9uZnNyYk5EQVpqRG5xM1JZcEl0UzFEbFZBdEpCTFJkZ044S0pLQUlaUE5hSkJfUFJiV25KbUFsZkJyOFRZcGpfVzR4VEdoM25oUWRPdEp5MWc?oc=5" target="_blank">米少年、AIに相談し母弟殺害か　東部ボストンの17歳訴追 - ｄメニューニュース</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-meta item-related">関連キーワード: <span class="kw-tag">AI</span><span class="kw-tag">GPT</span><span class="kw-tag">人工知能</span></p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiigFBVV95cUxQYkNFaTVDSVhOXzdPRkFRMjVSc2JlQnN5R1BzVXdUVVdZdUVxdFlzdUQxYkFoQWwwSmIxVkRJdkFyS1YtdTJBQnhFVVVvMWI1NXJtS1l4WHJTZHZ5c0dfZzlmd2lld0RGMWV0N2NBS1YxbGtvWmp6UDhuY3pKM2QyNksxUE9mNFFkRnfSAY8BQVVfeXFMTV82RTlxbmRnN1NlOXZRTEJORE5hc0FmSlJmWXlSNzJ3TjhiWllTS3pBRzRiWmRheDdVNkM3Tk9uZnNyYk5EQVpqRG5xM1JZcEl0UzFEbFZBdEpCTFJkZ044S0pLQUlaUE5hSkJfUFJiV25KbUFsZkJyOFRZcGpfVzR4VEdoM25oUWRPdEp5MWc?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiigFBVV95cUxQYkNFaTVDSVhOXzdPRkFRMjVSc2JlQnN5R1BzVXdUVVdZdUVxdFlzdUQxYkFoQWwwSmIxVkRJdkFyS1YtdTJBQnhFVVVvMWI1NXJtS1l4WHJTZHZ5c0dfZzlmd2lld0RGMWV0N2NBS1YxbGtvWmp6UDhuY3pKM2QyNksxUE9mNFFkRnfSAY8BQVVfeXFMTV82RTlxbmRnN1NlOXZRTEJORE5hc0FmSlJmWXlSNzJ3TjhiWllTS3pBRzRiWmRheDdVNkM3Tk9uZnNyYk5EQVpqRG5xM1JZcEl0UzFEbFZBdEpCTFJkZ044S0pLQUlaUE5hSkJfUFJiV25KbUFsZkJyOFRZcGpfVzR4VEdoM25oUWRPdEp5MWc?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">10. <a href="https://news.google.com/rss/articles/CBMiYEFVX3lxTE9mTExMZERHdHFzQ2E3MEpoVFF4TnFEbU9SbWoyVElaWEhiYzROYTYyVXYxQU9JS2JrSmFWVnBZVE5nWjdpWWxHUkh6bUxWUG4xRG55cVptclVPVzkwdEJiSA?oc=5" target="_blank">ＡＩ相談、母と弟殺害か 米少年 - 琉球新報デジタル</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiYEFVX3lxTE9mTExMZERHdHFzQ2E3MEpoVFF4TnFEbU9SbWoyVElaWEhiYzROYTYyVXYxQU9JS2JrSmFWVnBZVE5nWjdpWWxHUkh6bUxWUG4xRG55cVptclVPVzkwdEJiSA?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiYEFVX3lxTE9mTExMZERHdHFzQ2E3MEpoVFF4TnFEbU9SbWoyVElaWEhiYzROYTYyVXYxQU9JS2JrSmFWVnBZVE5nWjdpWWxHUkh6bUxWUG4xRG55cVptclVPVzkwdEJiSA?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">11. <a href="https://news.google.com/rss/articles/CBMiXkFVX3lxTE0wZ1FLYmV2ZkdNTmtDUkNjWjk0ajBoZEpfVHdBNk1xalZ0Q2k5VW5VQmRfY1MyR1FybzJoZzU1WnJONng3T0w1SVd4cG1QYWFTckZNSEVSWkpsLUVSb3c?oc=5" target="_blank">米ボストンの17歳少年、事件前にAIに相談し母と弟を殺害か (2026年8月16日掲載) - ライブドアニュース</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiXkFVX3lxTE0wZ1FLYmV2ZkdNTmtDUkNjWjk0ajBoZEpfVHdBNk1xalZ0Q2k5VW5VQmRfY1MyR1FybzJoZzU1WnJONng3T0w1SVd4cG1QYWFTckZNSEVSWkpsLUVSb3c?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiXkFVX3lxTE0wZ1FLYmV2ZkdNTmtDUkNjWjk0ajBoZEpfVHdBNk1xalZ0Q2k5VW5VQmRfY1MyR1FybzJoZzU1WnJONng3T0w1SVd4cG1QYWFTckZNSEVSWkpsLUVSb3c?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">12. <a href="https://news.google.com/rss/articles/CBMiWEFVX3lxTE94M19EVjRMQ055cVluOGVsckJJNmE1OGV0ajVFM3dYaXdNUTFzUC1FX0tCR2hiS0NkTGpNR1FRdEVkdmhkR1BGR3luZ3huNTIxWXR2aVhoYWw?oc=5" target="_blank">東大でも早慶でもない…｢AI分野｣の世界の大学ランキングで唯一100位内に入った日本の大学の名前【2026年7月BEST】 - PRESIDENT Online（プレジデントオンライン）</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiWEFVX3lxTE94M19EVjRMQ055cVluOGVsckJJNmE1OGV0ajVFM3dYaXdNUTFzUC1FX0tCR2hiS0NkTGpNR1FRdEVkdmhkR1BGR3luZ3huNTIxWXR2aVhoYWw?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiWEFVX3lxTE94M19EVjRMQ055cVluOGVsckJJNmE1OGV0ajVFM3dYaXdNUTFzUC1FX0tCR2hiS0NkTGpNR1FRdEVkdmhkR1BGR3luZ3huNTIxWXR2aVhoYWw?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">13. <a href="https://news.google.com/rss/articles/CBMiW0FVX3lxTE5XdzdvTFdkc004VlFkWW5iVG1CNTE2OENrZ2IzOThQMS1rUUcxTmpGSUR6Tk1qNmF6UU5sT3I0ZUp4RnN4b1pISmo0bUVSMHB1YUltQW15RWpoV2s?oc=5" target="_blank">AIでGA4分析はどう変わるのか？ “次の打ち手”を迷わず生み出すコツとは？ - webtan.impress.co.jp</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-15</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiW0FVX3lxTE5XdzdvTFdkc004VlFkWW5iVG1CNTE2OENrZ2IzOThQMS1rUUcxTmpGSUR6Tk1qNmF6UU5sT3I0ZUp4RnN4b1pISmo0bUVSMHB1YUltQW15RWpoV2s?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiW0FVX3lxTE5XdzdvTFdkc004VlFkWW5iVG1CNTE2OENrZ2IzOThQMS1rUUcxTmpGSUR6Tk1qNmF6UU5sT3I0ZUp4RnN4b1pISmo0bUVSMHB1YUltQW15RWpoV2s?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">14. <a href="https://news.google.com/rss/articles/CBMiZ0FVX3lxTE5EQnpveGZOOFlVcDF1Tmt3VXd0b0VMMzcxLUdtaTVMYXE5UUtBLTRmeFZOd1BBLURQWmFoVkRzeFhnOFc5cU1HS0Jfc0ZhQnN4SEtHaFdVNlpuRkdjUlREdndZZ0lvQ0k?oc=5" target="_blank">AIリスクどう考える「教師も学んで」 シンポで教育関係者ら語る [AIの時代] - 朝日新聞</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-meta item-related">関連キーワード: <span class="kw-tag">AI</span><span class="kw-tag">人工知能</span><span class="kw-tag">生成AI</span></p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiZ0FVX3lxTE5EQnpveGZOOFlVcDF1Tmt3VXd0b0VMMzcxLUdtaTVMYXE5UUtBLTRmeFZOd1BBLURQWmFoVkRzeFhnOFc5cU1HS0Jfc0ZhQnN4SEtHaFdVNlpuRkdjUlREdndZZ0lvQ0k?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiZ0FVX3lxTE5EQnpveGZOOFlVcDF1Tmt3VXd0b0VMMzcxLUdtaTVMYXE5UUtBLTRmeFZOd1BBLURQWmFoVkRzeFhnOFc5cU1HS0Jfc0ZhQnN4SEtHaFdVNlpuRkdjUlREdndZZ0lvQ0k?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">15. <a href="https://news.google.com/rss/articles/CBMiY0FVX3lxTFA1UWpkc2JoZGprTnd5c0RnSDhsSC1wUmNSVWpDRDVJMDdacDZITnROWEI0Y1N6dnVlRkZkWDZWS3h6Q0hielVJdkJPRlJBYm1JSU5GRU1tdzlJU0VCNzJOb2E3dw?oc=5" target="_blank">秋田にＡＩ企業、人材を データセンター起点―エスツーの須藤ＣＥＯ - 時事ドットコム</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-meta item-related">関連キーワード: <span class="kw-tag">AI</span><span class="kw-tag">人工知能</span></p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiY0FVX3lxTFA1UWpkc2JoZGprTnd5c0RnSDhsSC1wUmNSVWpDRDVJMDdacDZITnROWEI0Y1N6dnVlRkZkWDZWS3h6Q0hielVJdkJPRlJBYm1JSU5GRU1tdzlJU0VCNzJOb2E3dw?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiY0FVX3lxTFA1UWpkc2JoZGprTnd5c0RnSDhsSC1wUmNSVWpDRDVJMDdacDZITnROWEI0Y1N6dnVlRkZkWDZWS3h6Q0hielVJdkJPRlJBYm1JSU5GRU1tdzlJU0VCNzJOb2E3dw?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">16. <a href="https://news.google.com/rss/articles/CBMibEFVX3lxTE5oWjg1bUlXZVI1aXFzeWlMZVNSaU5uaGVoWENxYlFXYUs2RzNJUmQtQTI5bEZyWFhLM19taVhTZEx0bXNzamxpVldRVFlYNFl3dWx2cVd0WktBaGsxdDFEVkxlVXU3Vjk0a0Fhcg?oc=5" target="_blank">AIブームは良いバブルか 熱狂に駆られた巨額投資が築く遺産も - 日本経済新聞</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMibEFVX3lxTE5oWjg1bUlXZVI1aXFzeWlMZVNSaU5uaGVoWENxYlFXYUs2RzNJUmQtQTI5bEZyWFhLM19taVhTZEx0bXNzamxpVldRVFlYNFl3dWx2cVd0WktBaGsxdDFEVkxlVXU3Vjk0a0Fhcg?oc=5" target="_blank">https://news.google.com/rss/articles/CBMibEFVX3lxTE5oWjg1bUlXZVI1aXFzeWlMZVNSaU5uaGVoWENxYlFXYUs2RzNJUmQtQTI5bEZyWFhLM19taVhTZEx0bXNzamxpVldRVFlYNFl3dWx2cVd0WktBaGsxdDFEVkxlVXU3Vjk0a0Fhcg?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">17. <a href="https://news.google.com/rss/articles/CBMiX0FVX3lxTE5OalJjbm5MTHJVaFFmcGNsekxSSWJjVTl1Um8yWUlKZU5ROGJEc1k4YzY5S1dOSUxfeGVFcjlTY2lra0VCc2VNTTBfeEVjaUNncGl3akE2VFdZcVY3SE1F?oc=5" target="_blank">【COMPUTEX 2026：半導体関連産業編】エージェントAIの本格化を見据えたハード競争、米Qualcommやキオクシアらが攻勢 - デジタルクロス</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-meta item-related">関連キーワード: <span class="kw-tag">AI</span><span class="kw-tag">人工知能</span></p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiX0FVX3lxTE5OalJjbm5MTHJVaFFmcGNsekxSSWJjVTl1Um8yWUlKZU5ROGJEc1k4YzY5S1dOSUxfeGVFcjlTY2lra0VCc2VNTTBfeEVjaUNncGl3akE2VFdZcVY3SE1F?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiX0FVX3lxTE5OalJjbm5MTHJVaFFmcGNsekxSSWJjVTl1Um8yWUlKZU5ROGJEc1k4YzY5S1dOSUxfeGVFcjlTY2lra0VCc2VNTTBfeEVjaUNncGl3akE2VFdZcVY3SE1F?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">18. <a href="https://news.google.com/rss/articles/CBMif0FVX3lxTFBod00tU2h2a0luOUdrc3k1QXYzRWtPaFZnLTFxZmswQzZ3WjF1bG5YaXZ2dlFYem9jaWk3SS1fdS1RV0tfSGtlb2wzUUhtdGZ2cmd3RFhvV2Z0eEJSSjZUQ0Npcnc3YnlIX3k2dWlXcmNLb05GUXZKdFN6T1BSRHc?oc=5" target="_blank">『VIVANT』便利すぎる「AIハヤト」が前作にいなかった「納得させられちゃう理由」とは ドラマ外でちゃんと説明が（マグミクス） - Yahoo!ニュース</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMif0FVX3lxTFBod00tU2h2a0luOUdrc3k1QXYzRWtPaFZnLTFxZmswQzZ3WjF1bG5YaXZ2dlFYem9jaWk3SS1fdS1RV0tfSGtlb2wzUUhtdGZ2cmd3RFhvV2Z0eEJSSjZUQ0Npcnc3YnlIX3k2dWlXcmNLb05GUXZKdFN6T1BSRHc?oc=5" target="_blank">https://news.google.com/rss/articles/CBMif0FVX3lxTFBod00tU2h2a0luOUdrc3k1QXYzRWtPaFZnLTFxZmswQzZ3WjF1bG5YaXZ2dlFYem9jaWk3SS1fdS1RV0tfSGtlb2wzUUhtdGZ2cmd3RFhvV2Z0eEJSSjZUQ0Npcnc3YnlIX3k2dWlXcmNLb05GUXZKdFN6T1BSRHc?oc=5</a></p>
+      <div class="related-stocks">📈 関連銘柄: <a href="https://kabutan.jp/stock/?code=9401" target="_blank" class="stock-link">9401</a><span class="stock-company">TBSホールディングス</span></div>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">19. <a href="https://news.google.com/rss/articles/CBMiXEFVX3lxTE1XTzNHa091elVNckJxeVdtN2lMYzFFbnBIQ29ES2ZKM1JjNlFqRFVDMmN5RF9PdUV1R1FkekR4UGkwTkh1Y3FPZURxNjFJcFp2dUhfbTBxM3hIemdX?oc=5" target="_blank">（ＡＩの時代）「あなたの職務、撤廃されます」 ＡＩが代替、米ＩＴ人員削減 - 朝日新聞</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiXEFVX3lxTE1XTzNHa091elVNckJxeVdtN2lMYzFFbnBIQ29ES2ZKM1JjNlFqRFVDMmN5RF9PdUV1R1FkekR4UGkwTkh1Y3FPZURxNjFJcFp2dUhfbTBxM3hIemdX?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiXEFVX3lxTE1XTzNHa091elVNckJxeVdtN2lMYzFFbnBIQ29ES2ZKM1JjNlFqRFVDMmN5RF9PdUV1R1FkekR4UGkwTkh1Y3FPZURxNjFJcFp2dUhfbTBxM3hIemdX?oc=5</a></p>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+<section class="source-section" id="kw_1">
+  <h2 class="source-title" style="border-left-color:#107c10;"><span class="kw-badge" style="background:#107c10;">🔑</span> AIガバナンス <span class="source-count">(1件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMiVkFVX3lxTE1LRkc4RlhXNndaUVAxOV91azIwenBtZnp1bVVha0Q5dXZBcUZERnRKcWdnSHpLUkc2UzVwSUNfZEZMUlIxWUlTRzhDNW9hVFJCem9RRkt3?oc=5" target="_blank">日本ディープラーニング協会、AIガバナンス体制の第三者認証制度「C認証」の一般申請受付を開始 - enterprisezine.jp</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiVkFVX3lxTE1LRkc4RlhXNndaUVAxOV91azIwenBtZnp1bVVha0Q5dXZBcUZERnRKcWdnSHpLUkc2UzVwSUNfZEZMUlIxWUlTRzhDNW9hVFJCem9RRkt3?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiVkFVX3lxTE1LRkc4RlhXNndaUVAxOV91azIwenBtZnp1bVVha0Q5dXZBcUZERnRKcWdnSHpLUkc2UzVwSUNfZEZMUlIxWUlTRzhDNW9hVFJCem9RRkt3?oc=5</a></p>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+<section class="source-section" id="kw_2">
+  <h2 class="source-title" style="border-left-color:#d83b01;"><span class="kw-badge" style="background:#d83b01;">🔑</span> AI医療 <span class="source-count">(3件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMiZ0FVX3lxTE05QUJQWnZ3NVAtaHJuaXZZWjV2WTR6U3hYdTlLNFVLYnJQeGtWNFNDZ28xLXpiU043SGVPaXdvWDJhNFRpYXI3WVljTTlkZkYzUVdSbkFHRmw4M2RBVjkwZ3B5RWNxbm8?oc=5" target="_blank">認知機能の状態をAIで評価、医療機器の開発も…AIはどこを見る？ [AIの時代] - 朝日新聞</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiZ0FVX3lxTE05QUJQWnZ3NVAtaHJuaXZZWjV2WTR6U3hYdTlLNFVLYnJQeGtWNFNDZ28xLXpiU043SGVPaXdvWDJhNFRpYXI3WVljTTlkZkYzUVdSbkFHRmw4M2RBVjkwZ3B5RWNxbm8?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiZ0FVX3lxTE05QUJQWnZ3NVAtaHJuaXZZWjV2WTR6U3hYdTlLNFVLYnJQeGtWNFNDZ28xLXpiU043SGVPaXdvWDJhNFRpYXI3WVljTTlkZkYzUVdSbkFHRmw4M2RBVjkwZ3B5RWNxbm8?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">2. <a href="https://news.google.com/rss/articles/CBMifEFVX3lxTE03d1lncFprYUdjQmlZeDUxcTVmRTUzTlRmYWM4VENEbHhsMktwTEdlLVd5Mi1ncGViT1ZkYWJoZVl3QlFoNk14RkNOS2tja2YtYXBHeEwtV3JwaUNwT0NVQkhYdnNQRXJhcGlMUUFPQkVHMVQ1T2cwVnpzY1k?oc=5" target="_blank">AIを応用して、医療検査と治療の質を向上させる。 - Vietnam.vn</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMifEFVX3lxTE03d1lncFprYUdjQmlZeDUxcTVmRTUzTlRmYWM4VENEbHhsMktwTEdlLVd5Mi1ncGViT1ZkYWJoZVl3QlFoNk14RkNOS2tja2YtYXBHeEwtV3JwaUNwT0NVQkhYdnNQRXJhcGlMUUFPQkVHMVQ1T2cwVnpzY1k?oc=5" target="_blank">https://news.google.com/rss/articles/CBMifEFVX3lxTE03d1lncFprYUdjQmlZeDUxcTVmRTUzTlRmYWM4VENEbHhsMktwTEdlLVd5Mi1ncGViT1ZkYWJoZVl3QlFoNk14RkNOS2tja2YtYXBHeEwtV3JwaUNwT0NVQkhYdnNQRXJhcGlMUUFPQkVHMVQ1T2cwVnpzY1k?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">3. <a href="https://news.google.com/rss/articles/CBMieEFVX3lxTE5SS3pSMnBDZE1aWjQwR1FIOG5Md0lPdjdUaVA3Qm8tbHNqZ0xtS3lqQ3JmUUs3dk1saXl6cXlKcjdoOWZ6YU1nMDZSbWJvTnF2dVVRTkd3TXdCaTFGMWRhRUhhbU02Nm5rWlExTHJLNlRPMm5rNXYzZg?oc=5" target="_blank">健康に関するアドバイスにAIを利用することは、多くの潜在的なリスクを伴う。 - Vietnam.vn</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMieEFVX3lxTE5SS3pSMnBDZE1aWjQwR1FIOG5Md0lPdjdUaVA3Qm8tbHNqZ0xtS3lqQ3JmUUs3dk1saXl6cXlKcjdoOWZ6YU1nMDZSbWJvTnF2dVVRTkd3TXdCaTFGMWRhRUhhbU02Nm5rWlExTHJLNlRPMm5rNXYzZg?oc=5" target="_blank">https://news.google.com/rss/articles/CBMieEFVX3lxTE5SS3pSMnBDZE1aWjQwR1FIOG5Md0lPdjdUaVA3Qm8tbHNqZ0xtS3lqQ3JmUUs3dk1saXl6cXlKcjdoOWZ6YU1nMDZSbWJvTnF2dVVRTkd3TXdCaTFGMWRhRUhhbU02Nm5rWlExTHJLNlRPMm5rNXYzZg?oc=5</a></p>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+<section class="source-section" id="kw_3">
+  <h2 class="source-title" style="border-left-color:#5c2d91;"><span class="kw-badge" style="background:#5c2d91;">🔑</span> AI画像生成 <span class="source-count">(3件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMiiAFBVV95cUxQQ05IbzdEZ0JMRU1JY3lpcE1ldE1saTVfY1lLalJ3NE0wWmw5bTl3NnFxQ2xENUJjSnIyQU1lSkZLMmhRUDl5d1RIQ0VZdTZiVGJIM0NQX0Q5Q3lpdmtHaGFWd0tPc3k4RXNNMDVRY1NoZUhCUGVCeFlYd0VUUnpTeno3SWxCLWNC?oc=5" target="_blank">味の素がSNS投稿画像について謝罪 「AI修正」の弱点か（山口健太） - エキスパート - Yahoo!ニュース</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiiAFBVV95cUxQQ05IbzdEZ0JMRU1JY3lpcE1ldE1saTVfY1lLalJ3NE0wWmw5bTl3NnFxQ2xENUJjSnIyQU1lSkZLMmhRUDl5d1RIQ0VZdTZiVGJIM0NQX0Q5Q3lpdmtHaGFWd0tPc3k4RXNNMDVRY1NoZUhCUGVCeFlYd0VUUnpTeno3SWxCLWNC?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiiAFBVV95cUxQQ05IbzdEZ0JMRU1JY3lpcE1ldE1saTVfY1lLalJ3NE0wWmw5bTl3NnFxQ2xENUJjSnIyQU1lSkZLMmhRUDl5d1RIQ0VZdTZiVGJIM0NQX0Q5Q3lpdmtHaGFWd0tPc3k4RXNNMDVRY1NoZUhCUGVCeFlYd0VUUnpTeno3SWxCLWNC?oc=5</a></p>
+      <div class="related-stocks">📈 関連銘柄: <a href="https://kabutan.jp/stock/?code=2802" target="_blank" class="stock-link">2802</a><span class="stock-company">味の素</span></div>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">2. <a href="https://news.google.com/rss/articles/CBMibkFVX3lxTFBfMHVXSk1zU0pKSDNFZmJPUVN6MXlNQ3BVOVZGX3RKeXJvY0RTR2FxRi1fdmM1cGNQOU9GTnQzdENRb3VIUkZjLU5tc2x2TWVRUmVrVWE2eFlqVVVrbFV4RnMyZmZHcWw5dE1sY1Z3?oc=5" target="_blank">AI生成テキストの「透かし」が埋め込まれる仕組み - au Webポータル</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-meta item-related">関連キーワード: <span class="kw-tag">AI画像生成</span><span class="kw-tag">Anthropic</span></p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMibkFVX3lxTFBfMHVXSk1zU0pKSDNFZmJPUVN6MXlNQ3BVOVZGX3RKeXJvY0RTR2FxRi1fdmM1cGNQOU9GTnQzdENRb3VIUkZjLU5tc2x2TWVRUmVrVWE2eFlqVVVrbFV4RnMyZmZHcWw5dE1sY1Z3?oc=5" target="_blank">https://news.google.com/rss/articles/CBMibkFVX3lxTFBfMHVXSk1zU0pKSDNFZmJPUVN6MXlNQ3BVOVZGX3RKeXJvY0RTR2FxRi1fdmM1cGNQOU9GTnQzdENRb3VIUkZjLU5tc2x2TWVRUmVrVWE2eFlqVVVrbFV4RnMyZmZHcWw5dE1sY1Z3?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">3. <a href="https://news.google.com/rss/articles/CBMiT0FVX3lxTFBjci0tMG5reW1FVEc2WUNMM2dlbDc2N1JMQVl1Z0F5RzU1SnVDTUtCVXUyeFRwV3l3cHdsamhReWZndFVkWW1MZWxkREJBRVk?oc=5" target="_blank">クイーンのブライアン・メイ、AIでメンバー写真を生成するも残念な結果に - エンタメ - ニュース - クランクイン！</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiT0FVX3lxTFBjci0tMG5reW1FVEc2WUNMM2dlbDc2N1JMQVl1Z0F5RzU1SnVDTUtCVXUyeFRwV3l3cHdsamhReWZndFVkWW1MZWxkREJBRVk?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiT0FVX3lxTFBjci0tMG5reW1FVEc2WUNMM2dlbDc2N1JMQVl1Z0F5RzU1SnVDTUtCVXUyeFRwV3l3cHdsamhReWZndFVkWW1MZWxkREJBRVk?oc=5</a></p>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+<section class="source-section" id="kw_4">
+  <h2 class="source-title" style="border-left-color:#008272;"><span class="kw-badge" style="background:#008272;">🔑</span> AI規制 <span class="source-count">(2件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMiQEFVX3lxTE5xY0xqU1dtMDQtaEhqTTZubmFnT1lKZHpRbkdJS3Q2ak5IWUJIdHRYSVk4SjdENWE2Y3JyeW9JZDY?oc=5" target="_blank">「今月末までに殺す」とAIに書いた元ゴールドマン行員、逮捕から2日で保釈された理由 - shiritomo</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiQEFVX3lxTE5xY0xqU1dtMDQtaEhqTTZubmFnT1lKZHpRbkdJS3Q2ak5IWUJIdHRYSVk4SjdENWE2Y3JyeW9JZDY?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiQEFVX3lxTE5xY0xqU1dtMDQtaEhqTTZubmFnT1lKZHpRbkdJS3Q2ak5IWUJIdHRYSVk4SjdENWE2Y3JyeW9JZDY?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">2. <a href="https://news.google.com/rss/articles/CBMiakFVX3lxTE1fYTh0V25kZjQ5Tkk4MVY4MVhVeFBrcl9kbjJOMEJreURfc3AtRUZYTEVoYzg2WGlKaVo5U0xZX0ZsUzQ2SXZiOXM3bTNPWDdLSi13WkhpVkFsOThuNU9IN2Mxd3VXYlFYQ0E?oc=5" target="_blank">高等教育におけるAI規制 - Vietnam.vn</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-15</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiakFVX3lxTE1fYTh0V25kZjQ5Tkk4MVY4MVhVeFBrcl9kbjJOMEJreURfc3AtRUZYTEVoYzg2WGlKaVo5U0xZX0ZsUzQ2SXZiOXM3bTNPWDdLSi13WkhpVkFsOThuNU9IN2Mxd3VXYlFYQ0E?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiakFVX3lxTE1fYTh0V25kZjQ5Tkk4MVY4MVhVeFBrcl9kbjJOMEJreURfc3AtRUZYTEVoYzg2WGlKaVo5U0xZX0ZsUzQ2SXZiOXM3bTNPWDdLSi13WkhpVkFsOThuNU9IN2Mxd3VXYlFYQ0E?oc=5</a></p>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+<section class="source-section" id="kw_5">
+  <h2 class="source-title" style="border-left-color:#004b50;"><span class="kw-badge" style="background:#004b50;">🔑</span> AI金融 <span class="source-count">(3件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMibEFVX3lxTFBIZk5NTkc2VVFxdmhRZ2ZjdS15NnZqellzc3NYTFE3cVpTT3NhallnSkJLRlZCZGF4ZnFfYVVFWGEyN0ZHc2J4V1VRLVljMEJXYlNjajRnNXNsYlJFLUpCZUdXTUg3OWNqV0xhQg?oc=5" target="_blank">先端AI攻撃「金融機関は真っ先に狙われる」 片山金融相インタビュー - 日本経済新聞</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMibEFVX3lxTFBIZk5NTkc2VVFxdmhRZ2ZjdS15NnZqellzc3NYTFE3cVpTT3NhallnSkJLRlZCZGF4ZnFfYVVFWGEyN0ZHc2J4V1VRLVljMEJXYlNjajRnNXNsYlJFLUpCZUdXTUg3OWNqV0xhQg?oc=5" target="_blank">https://news.google.com/rss/articles/CBMibEFVX3lxTFBIZk5NTkc2VVFxdmhRZ2ZjdS15NnZqellzc3NYTFE3cVpTT3NhallnSkJLRlZCZGF4ZnFfYVVFWGEyN0ZHc2J4V1VRLVljMEJXYlNjajRnNXNsYlJFLUpCZUdXTUg3OWNqV0xhQg?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">2. <a href="https://news.google.com/rss/articles/CBMiX0FVX3lxTE1vU2lteFNUQXotQ25oenpJMnp6djFzUnJ4YkE1ei1aUlpnVEdsM3hXLVREX2tjS0VVMjY1SGZVbHNXY0FHTlllT0I3eVo0dHhGTXh3cG9VVFl5QVpUUGkw?oc=5" target="_blank">高性能AI対策検討の官民作業部会座長“地域金融機関を支援へ” - NHKニュース</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-meta item-related">関連キーワード: <span class="kw-tag">AI金融</span><span class="kw-tag">人工知能</span></p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiX0FVX3lxTE1vU2lteFNUQXotQ25oenpJMnp6djFzUnJ4YkE1ei1aUlpnVEdsM3hXLVREX2tjS0VVMjY1SGZVbHNXY0FHTlllT0I3eVo0dHhGTXh3cG9VVFl5QVpUUGkw?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiX0FVX3lxTE1vU2lteFNUQXotQ25oenpJMnp6djFzUnJ4YkE1ei1aUlpnVEdsM3hXLVREX2tjS0VVMjY1SGZVbHNXY0FHTlllT0I3eVo0dHhGTXh3cG9VVFl5QVpUUGkw?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">3. <a href="https://news.google.com/rss/articles/CBMiyAFBVV95cUxPVGFnbVR2LWQtdmNIampBdXhEeGw1RXB4SF9acVlRZHI4ejZjNmZleVpBQ1IyemZjc3dhXzJvTXlaaG55MTlBSHE3MVZTRzgwTl9xSmNBUDFMNjF4VGJ1TURGV3hNRU9sckJPXzlfY0hsY2phbXU1VXJXYzBwSGlJNFRvZVdnUmhHRHVwVVhEN0s2Uy1xdVl6MlVXTmRzRFpuc0oxTTNPR3dlRjMtQzhNM0dDbnVLb1dvLXlGMDdkYTVZMXVpdEhYTw?oc=5" target="_blank">金融アカデミーの学長は、新卒者たちに「生涯学習、AI時代における継続的なイノベーション」を奨励した。 - Vietnam.vn</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiyAFBVV95cUxPVGFnbVR2LWQtdmNIampBdXhEeGw1RXB4SF9acVlRZHI4ejZjNmZleVpBQ1IyemZjc3dhXzJvTXlaaG55MTlBSHE3MVZTRzgwTl9xSmNBUDFMNjF4VGJ1TURGV3hNRU9sckJPXzlfY0hsY2phbXU1VXJXYzBwSGlJNFRvZVdnUmhHRHVwVVhEN0s2Uy1xdVl6MlVXTmRzRFpuc0oxTTNPR3dlRjMtQzhNM0dDbnVLb1dvLXlGMDdkYTVZMXVpdEhYTw?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiyAFBVV95cUxPVGFnbVR2LWQtdmNIampBdXhEeGw1RXB4SF9acVlRZHI4ejZjNmZleVpBQ1IyemZjc3dhXzJvTXlaaG55MTlBSHE3MVZTRzgwTl9xSmNBUDFMNjF4VGJ1TURGV3hNRU9sckJPXzlfY0hsY2phbXU1VXJXYzBwSGlJNFRvZVdnUmhHRHVwVVhEN0s2Uy1xdVl6MlVXTmRzRFpuc0oxTTNPR3dlRjMtQzhNM0dDbnVLb1dvLXlGMDdkYTVZMXVpdEhYTw?oc=5</a></p>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+<section class="source-section" id="kw_6">
+  <h2 class="source-title" style="border-left-color:#ca5010;"><span class="kw-badge" style="background:#ca5010;">🔑</span> Anthropic <span class="source-count">(7件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMiakFVX3lxTE52TFFVVHJYTFlnRWRveTFWR3NZRzN5YVBvenFPckVUUDdWejZpTG5vSnU3Unc5UURnV0FVS1pFZk9uTVpOcHpTUGxSQUdPSEJHYm5McUJWT29uMS1WbVNyRVNPU1dvNi1ZTWc?oc=5" target="_blank">「Claude」の“見えない透かし”、Anthropicが仕組みを説明 「完全な書き直しなら消える」 - ITmedia</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-15</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiakFVX3lxTE52TFFVVHJYTFlnRWRveTFWR3NZRzN5YVBvenFPckVUUDdWejZpTG5vSnU3Unc5UURnV0FVS1pFZk9uTVpOcHpTUGxSQUdPSEJHYm5McUJWT29uMS1WbVNyRVNPU1dvNi1ZTWc?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiakFVX3lxTE52TFFVVHJYTFlnRWRveTFWR3NZRzN5YVBvenFPckVUUDdWejZpTG5vSnU3Unc5UURnV0FVS1pFZk9uTVpOcHpTUGxSQUdPSEJHYm5McUJWT29uMS1WbVNyRVNPU1dvNi1ZTWc?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">2. <a href="https://news.google.com/rss/articles/CBMibkFVX3lxTFBlOVMwLXRJRzg3ckNOb29hNEZJY2xQZ3p4RmhMQ0N5T1k1a1Z0M25WMTFmaGdDajVoVXNicUNzSHpENFZrdFU0Tmg1Q01TbkpJd2NOTGZuUHV4QVVfUFNqOC1yTEFKVk54eTdSS1BB?oc=5" target="_blank">Anthropicの電子透かし導入発表直後に登場した透かし剥がしOSS「watermarks-remover」がClaude・Gemini・OpenAIに対応（生成AIクローズアップ） - au Webポータル</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-meta item-related">関連キーワード: <span class="kw-tag">Anthropic</span><span class="kw-tag">生成AI</span></p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMibkFVX3lxTFBlOVMwLXRJRzg3ckNOb29hNEZJY2xQZ3p4RmhMQ0N5T1k1a1Z0M25WMTFmaGdDajVoVXNicUNzSHpENFZrdFU0Tmg1Q01TbkpJd2NOTGZuUHV4QVVfUFNqOC1yTEFKVk54eTdSS1BB?oc=5" target="_blank">https://news.google.com/rss/articles/CBMibkFVX3lxTFBlOVMwLXRJRzg3ckNOb29hNEZJY2xQZ3p4RmhMQ0N5T1k1a1Z0M25WMTFmaGdDajVoVXNicUNzSHpENFZrdFU0Tmg1Q01TbkpJd2NOTGZuUHV4QVVfUFNqOC1yTEFKVk54eTdSS1BB?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">3. <a href="https://news.google.com/rss/articles/CBMibEFVX3lxTE1CQzI1cHY3VUpVWTI5NEJnMUlDT3c5X3ZjNnJKakVEbDlsQTJlMlE2eGU0WmNQX3hjOE1PU2xmZFZEa2pEaUo3NExIU0FoNVprM2MzNXpIeGZDVUVEd3FvVWx3THF3LVpNV0J4bw?oc=5" target="_blank">OpenAIやAnthropicでも続々発生、AIの「悪意なき暴走」は止められるか - 日経クロステック</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-meta item-related">関連キーワード: <span class="kw-tag">Anthropic</span><span class="kw-tag">OpenAI</span></p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMibEFVX3lxTE1CQzI1cHY3VUpVWTI5NEJnMUlDT3c5X3ZjNnJKakVEbDlsQTJlMlE2eGU0WmNQX3hjOE1PU2xmZFZEa2pEaUo3NExIU0FoNVprM2MzNXpIeGZDVUVEd3FvVWx3THF3LVpNV0J4bw?oc=5" target="_blank">https://news.google.com/rss/articles/CBMibEFVX3lxTE1CQzI1cHY3VUpVWTI5NEJnMUlDT3c5X3ZjNnJKakVEbDlsQTJlMlE2eGU0WmNQX3hjOE1PU2xmZFZEa2pEaUo3NExIU0FoNVprM2MzNXpIeGZDVUVEd3FvVWx3THF3LVpNV0J4bw?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">4. <a href="https://news.google.com/rss/articles/CBMibEFVX3lxTE14TTFlY2ppWWhVellUZU80dUxydktaOTRFcGNkblVDYktqMUROYjVDQjk3b0ZnanRYUWxyaGVWVjRWQ0lpaVRfQzhQb09zSS1aM0ZHX1BQWHhua3A1dXhFSmMyTzZMRWdwUnpQWA?oc=5" target="_blank">Microsoft 365一強に挑むAnthropic 2万社データで判明した企業AIの使い分け：企業が“マルチベンダーAI”を使う理由 - ITmedia</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-meta item-related">関連キーワード: <span class="kw-tag">Anthropic</span><span class="kw-tag">Microsoft AI</span></p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMibEFVX3lxTE14TTFlY2ppWWhVellUZU80dUxydktaOTRFcGNkblVDYktqMUROYjVDQjk3b0ZnanRYUWxyaGVWVjRWQ0lpaVRfQzhQb09zSS1aM0ZHX1BQWHhua3A1dXhFSmMyTzZMRWdwUnpQWA?oc=5" target="_blank">https://news.google.com/rss/articles/CBMibEFVX3lxTE14TTFlY2ppWWhVellUZU80dUxydktaOTRFcGNkblVDYktqMUROYjVDQjk3b0ZnanRYUWxyaGVWVjRWQ0lpaVRfQzhQb09zSS1aM0ZHX1BQWHhua3A1dXhFSmMyTzZMRWdwUnpQWA?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">5. <a href="https://news.google.com/rss/articles/CBMigwFBVV95cUxPdmh5a29yNm5qYTQ1UnF0Z2gtUFlvTmpuVFRYZTY3TDRsVm9aWnRsM05hd3ljYW5ac3ZLZ3Nrb2VrczZfVm9NaW5MYy1PZHdGMzd4bkE5QUlRMFFIMDNWcnRLdm4tVzYtYjJVWXdNNi1GVEk3VFYtMEtPSkpZWnhzZUJuNA?oc=5" target="_blank">カルダノ創設者、AnthropicのAI透かし除去ツールを公開 - BeInCrypto</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMigwFBVV95cUxPdmh5a29yNm5qYTQ1UnF0Z2gtUFlvTmpuVFRYZTY3TDRsVm9aWnRsM05hd3ljYW5ac3ZLZ3Nrb2VrczZfVm9NaW5MYy1PZHdGMzd4bkE5QUlRMFFIMDNWcnRLdm4tVzYtYjJVWXdNNi1GVEk3VFYtMEtPSkpZWnhzZUJuNA?oc=5" target="_blank">https://news.google.com/rss/articles/CBMigwFBVV95cUxPdmh5a29yNm5qYTQ1UnF0Z2gtUFlvTmpuVFRYZTY3TDRsVm9aWnRsM05hd3ljYW5ac3ZLZ3Nrb2VrczZfVm9NaW5MYy1PZHdGMzd4bkE5QUlRMFFIMDNWcnRLdm4tVzYtYjJVWXdNNi1GVEk3VFYtMEtPSkpZWnhzZUJuNA?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">6. <a href="https://news.google.com/rss/articles/CBMijwFBVV95cUxQTmd3YUpIYl9TN1IyaVBCTFFXYkVCSWdOd3VVNzVkSTFZRGZGVHZxNE43ZmpyZlJ6QVJRdzFabHFRRWNfVXV4a1FvaUVvUThBdFoxeXZWRGl6RWVLdUhLaE5lTjVGVXUxcW45WmZEZG1iUWZZVHVDOENWd09NVV8wblYzMFNhZjVIUjV1LUdSaw?oc=5" target="_blank">戦争状態の AI エージェント：Anthropic が malware で Claude を妨害する Claude を発見 - Pasquale Pillitteri</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-meta item-related">関連キーワード: <span class="kw-tag">Anthropic</span><span class="kw-tag">Claude</span></p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMijwFBVV95cUxQTmd3YUpIYl9TN1IyaVBCTFFXYkVCSWdOd3VVNzVkSTFZRGZGVHZxNE43ZmpyZlJ6QVJRdzFabHFRRWNfVXV4a1FvaUVvUThBdFoxeXZWRGl6RWVLdUhLaE5lTjVGVXUxcW45WmZEZG1iUWZZVHVDOENWd09NVV8wblYzMFNhZjVIUjV1LUdSaw?oc=5" target="_blank">https://news.google.com/rss/articles/CBMijwFBVV95cUxQTmd3YUpIYl9TN1IyaVBCTFFXYkVCSWdOd3VVNzVkSTFZRGZGVHZxNE43ZmpyZlJ6QVJRdzFabHFRRWNfVXV4a1FvaUVvUThBdFoxeXZWRGl6RWVLdUhLaE5lTjVGVXUxcW45WmZEZG1iUWZZVHVDOENWd09NVV8wblYzMFNhZjVIUjV1LUdSaw?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">7. <a href="https://news.google.com/rss/articles/CBMidEFVX3lxTE9ueG94bDJnMWtFMmRYalFPUm92czdGcjBLUFZjY1dRbE5nRkRBNVkxRWhmQ19xbGFJQUpHTVdaVEtnUXdqRVk5SkdWOG16WXlzbGhaNEFXT1U0NFRBbVJCQzJJM3gyRjFDTl9iY0dVZjk1WV8z?oc=5" target="_blank">Anthropic、初の営業利益を計上 第2四半期売上高は115億ドル超え - BigGo ファイナンス</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMidEFVX3lxTE9ueG94bDJnMWtFMmRYalFPUm92czdGcjBLUFZjY1dRbE5nRkRBNVkxRWhmQ19xbGFJQUpHTVdaVEtnUXdqRVk5SkdWOG16WXlzbGhaNEFXT1U0NFRBbVJCQzJJM3gyRjFDTl9iY0dVZjk1WV8z?oc=5" target="_blank">https://news.google.com/rss/articles/CBMidEFVX3lxTE9ueG94bDJnMWtFMmRYalFPUm92czdGcjBLUFZjY1dRbE5nRkRBNVkxRWhmQ19xbGFJQUpHTVdaVEtnUXdqRVk5SkdWOG16WXlzbGhaNEFXT1U0NFRBbVJCQzJJM3gyRjFDTl9iY0dVZjk1WV8z?oc=5</a></p>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+<section class="source-section" id="kw_7">
+  <h2 class="source-title" style="border-left-color:#0099bc;"><span class="kw-badge" style="background:#0099bc;">🔑</span> ChatGPT <span class="source-count">(4件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMiWkFVX3lxTE9rd1lObm5mUzI0THpPNGZLSDJlRmt3eHhjek1QWHl5ZWhsSTlIcGc5bkpUeFJHLXJJalV3VjY2aGxMdi1lSG5HZmVmbHNvVlM3MTlIVF9McWttUQ?oc=5" target="_blank">新しいスキルは不要、今の知識を月収32万円に変えるChatGPTのプロンプト - Forbes JAPAN</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiWkFVX3lxTE9rd1lObm5mUzI0THpPNGZLSDJlRmt3eHhjek1QWHl5ZWhsSTlIcGc5bkpUeFJHLXJJalV3VjY2aGxMdi1lSG5HZmVmbHNvVlM3MTlIVF9McWttUQ?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiWkFVX3lxTE9rd1lObm5mUzI0THpPNGZLSDJlRmt3eHhjek1QWHl5ZWhsSTlIcGc5bkpUeFJHLXJJalV3VjY2aGxMdi1lSG5HZmVmbHNvVlM3MTlIVF9McWttUQ?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">2. <a href="https://news.google.com/rss/articles/CBMifEFVX3lxTFBWMy1HQi1OZWpZeVNRQ1RUWEg2bkMyUUZDSjB0LVVTMXJMdjdDSGs4WXdidktvR3VKYnQzeGN6aUFYWjlqNlNBTlhZSVY4ZFVzd0pKRnhLY3VpYi14OTVic3hmQlFXdkVIRjJOVXkwaTlWZUtzZWFGREt1UkjSAYIBQVVfeXFMTTFuZ1J6Wl9EVUhTSmRRbG5VUDkyN2lscHpob1FNd2pyNm9pazRYbjlNYklYdDJ3Nm9jM3pqVHVrUU5IQjhkcjk4VzRyUHA1X3dWVk9NS0xXM2dER3MzRndmOTBscW56Smw4YUpQMUdpRXRnMjgzclpwTnllRlBLNXFMdw?oc=5" target="_blank">ChatGPTにライターの座を奪われたと暴露した開発者と否定するCEOの対立続く運転シム『Rideshare "スティミュレーター"』ストアページにAI生成コンテンツの開示を記載 - ｄメニューニュース</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-15</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMifEFVX3lxTFBWMy1HQi1OZWpZeVNRQ1RUWEg2bkMyUUZDSjB0LVVTMXJMdjdDSGs4WXdidktvR3VKYnQzeGN6aUFYWjlqNlNBTlhZSVY4ZFVzd0pKRnhLY3VpYi14OTVic3hmQlFXdkVIRjJOVXkwaTlWZUtzZWFGREt1UkjSAYIBQVVfeXFMTTFuZ1J6Wl9EVUhTSmRRbG5VUDkyN2lscHpob1FNd2pyNm9pazRYbjlNYklYdDJ3Nm9jM3pqVHVrUU5IQjhkcjk4VzRyUHA1X3dWVk9NS0xXM2dER3MzRndmOTBscW56Smw4YUpQMUdpRXRnMjgzclpwTnllRlBLNXFMdw?oc=5" target="_blank">https://news.google.com/rss/articles/CBMifEFVX3lxTFBWMy1HQi1OZWpZeVNRQ1RUWEg2bkMyUUZDSjB0LVVTMXJMdjdDSGs4WXdidktvR3VKYnQzeGN6aUFYWjlqNlNBTlhZSVY4ZFVzd0pKRnhLY3VpYi14OTVic3hmQlFXdkVIRjJOVXkwaTlWZUtzZWFGREt1UkjSAYIBQVVfeXFMTTFuZ1J6Wl9EVUhTSmRRbG5VUDkyN2lscHpob1FNd2pyNm9pazRYbjlNYklYdDJ3Nm9jM3pqVHVrUU5IQjhkcjk4VzRyUHA1X3dWVk9NS0xXM2dER3MzRndmOTBscW56Smw4YUpQMUdpRXRnMjgzclpwTnllRlBLNXFMdw?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">3. <a href="https://news.google.com/rss/articles/CBMif0FVX3lxTE12SEU5OUEwZWNtc0pTTFMwVWNjRFdyT3NUY1RnaDJxcTVEbEtQRm93WkpueFh0anNRNzZVV1RURFhKaVJPaG5CSkF6aXR6dWhFajZ6djB1Q0laRnY0V3hTX2dIUnBZWXVPLU4wRW5ZTllwMERTaDdrNndVUFNEQ00?oc=5" target="_blank">OpenAIがChatGPTにPC操作履歴を記憶・学習させる機能「Computer History」を提供開始（ビジネス＋IT） - Yahoo!ニュース</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-meta item-related">関連キーワード: <span class="kw-tag">ChatGPT</span><span class="kw-tag">OpenAI</span></p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMif0FVX3lxTE12SEU5OUEwZWNtc0pTTFMwVWNjRFdyT3NUY1RnaDJxcTVEbEtQRm93WkpueFh0anNRNzZVV1RURFhKaVJPaG5CSkF6aXR6dWhFajZ6djB1Q0laRnY0V3hTX2dIUnBZWXVPLU4wRW5ZTllwMERTaDdrNndVUFNEQ00?oc=5" target="_blank">https://news.google.com/rss/articles/CBMif0FVX3lxTE12SEU5OUEwZWNtc0pTTFMwVWNjRFdyT3NUY1RnaDJxcTVEbEtQRm93WkpueFh0anNRNzZVV1RURFhKaVJPaG5CSkF6aXR6dWhFajZ6djB1Q0laRnY0V3hTX2dIUnBZWXVPLU4wRW5ZTllwMERTaDdrNndVUFNEQ00?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">4. <a href="https://news.google.com/rss/articles/CBMiXEFVX3lxTE94eElqampmUWNyS3B6YlgweUlsUFJnTE1ObjBJaHBUZXRzZGZGdEJ3VzhkbTVKd3V4TVU2all3dEt4VnFTbTdrYi1wNlFubzJoajdkRFBRUGRVTXZI?oc=5" target="_blank">米17歳少年「ChatGPT」に相談で母と弟殺害か 安全対策あっても一掃できないＡＩの危険性 - 東スポWEB</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiXEFVX3lxTE94eElqampmUWNyS3B6YlgweUlsUFJnTE1ObjBJaHBUZXRzZGZGdEJ3VzhkbTVKd3V4TVU2all3dEt4VnFTbTdrYi1wNlFubzJoajdkRFBRUGRVTXZI?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiXEFVX3lxTE94eElqampmUWNyS3B6YlgweUlsUFJnTE1ObjBJaHBUZXRzZGZGdEJ3VzhkbTVKd3V4TVU2all3dEt4VnFTbTdrYi1wNlFubzJoajdkRFBRUGRVTXZI?oc=5</a></p>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+<section class="source-section" id="kw_8">
+  <h2 class="source-title" style="border-left-color:#8764b8;"><span class="kw-badge" style="background:#8764b8;">🔑</span> Claude <span class="source-count">(2件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMiUkFVX3lxTE1kSnNfUGJzNzdNX2hfOXVOalBQd3R1TVpMX2MyeW02YWNKWVhrS01PVXFad09ad3dtMlVlTVIzODE2dFJ6VmV5OWhSb3l0Y1kwQ2c?oc=5" target="_blank">Claudeで障害 アクセスできず（復旧） - CNET Japan</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiUkFVX3lxTE1kSnNfUGJzNzdNX2hfOXVOalBQd3R1TVpMX2MyeW02YWNKWVhrS01PVXFad09ad3dtMlVlTVIzODE2dFJ6VmV5OWhSb3l0Y1kwQ2c?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiUkFVX3lxTE1kSnNfUGJzNzdNX2hfOXVOalBQd3R1TVpMX2MyeW02YWNKWVhrS01PVXFad09ad3dtMlVlTVIzODE2dFJ6VmV5OWhSb3l0Y1kwQ2c?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">2. <a href="https://news.google.com/rss/articles/CBMinAFBVV95cUxPWGpKemxzOW80d1hhNDA3M2RiWUFocEo3ZDUySVE5bEJpRWxud2Q4cXM2Yi1TdHFTcGU4TFZoQUVSQWVabEJyQS1uM0RHemZFSlUtVV9GVzJSM1lxNzkwV3ZFdG5WZ0JSUWZXWjZvaERPdUhYeXJqUU0zNXlwbFhzWG9qVDFOQmE1NC1UTFFHNld0Q3NfWE5KY0tEc2M?oc=5" target="_blank">ClaudeのAIウォーターマーク除去ツールが相次ぎ登場-公式検出を回避できる保証はなく、安易な利用に注意 - rocket-boys.co.jp</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMinAFBVV95cUxPWGpKemxzOW80d1hhNDA3M2RiWUFocEo3ZDUySVE5bEJpRWxud2Q4cXM2Yi1TdHFTcGU4TFZoQUVSQWVabEJyQS1uM0RHemZFSlUtVV9GVzJSM1lxNzkwV3ZFdG5WZ0JSUWZXWjZvaERPdUhYeXJqUU0zNXlwbFhzWG9qVDFOQmE1NC1UTFFHNld0Q3NfWE5KY0tEc2M?oc=5" target="_blank">https://news.google.com/rss/articles/CBMinAFBVV95cUxPWGpKemxzOW80d1hhNDA3M2RiWUFocEo3ZDUySVE5bEJpRWxud2Q4cXM2Yi1TdHFTcGU4TFZoQUVSQWVabEJyQS1uM0RHemZFSlUtVV9GVzJSM1lxNzkwV3ZFdG5WZ0JSUWZXWjZvaERPdUhYeXJqUU0zNXlwbFhzWG9qVDFOQmE1NC1UTFFHNld0Q3NfWE5KY0tEc2M?oc=5</a></p>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+<section class="source-section" id="kw_9">
+  <h2 class="source-title" style="border-left-color:#038387;"><span class="kw-badge" style="background:#038387;">🔑</span> Gemini <span class="source-count">(4件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMif0FVX3lxTE5rbDFqUzM4SFR1MDAtYVVob3VoYl93WTBxQk52eHF1QTQyNE03Wl9SZTJSNVlwV3AtcXFwWl9PSjgtdmhpY2RONmxFRVRSMGJ4clR4YU5TZ0Z4T3NQSE9TOURtOUR3Y0pLbUFqbTQyNTV4WHk2al9hQXByeGZZNlE?oc=5" target="_blank">Google「Gemini Notebook」に情報ソースの自動追加機能を展開開始（ビジネス＋IT） - Yahoo!ニュース</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMif0FVX3lxTE5rbDFqUzM4SFR1MDAtYVVob3VoYl93WTBxQk52eHF1QTQyNE03Wl9SZTJSNVlwV3AtcXFwWl9PSjgtdmhpY2RONmxFRVRSMGJ4clR4YU5TZ0Z4T3NQSE9TOURtOUR3Y0pLbUFqbTQyNTV4WHk2al9hQXByeGZZNlE?oc=5" target="_blank">https://news.google.com/rss/articles/CBMif0FVX3lxTE5rbDFqUzM4SFR1MDAtYVVob3VoYl93WTBxQk52eHF1QTQyNE03Wl9SZTJSNVlwV3AtcXFwWl9PSjgtdmhpY2RONmxFRVRSMGJ4clR4YU5TZ0Z4T3NQSE9TOURtOUR3Y0pLbUFqbTQyNTV4WHk2al9hQXByeGZZNlE?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">2. <a href="https://news.google.com/rss/articles/CBMiTEFVX3lxTFA4T3ktNUR5NDFTR0NTZ1lKVGNFX2J3RVo4SXVza1haek9YM3JWeGh4U3pWWlBKX3BUUTBzeGt5bDZrUFNTU243X2o5X0PSAVJBVV95cUxOUTRyeE8teDF1QkNmbXhOcTJzTVRrenlYLWFwLWwycXpwblpuUEJmSmlrRkh1Rjk5LUM0dHRjV0R0c3NxeGgzR1Z6UzBFbV9YWnJ3?oc=5" target="_blank">iPhoneで無料Geminiを使う理由～ChatGPT Plusと併用して分かった強み - iPhone Mania - iphone-mania.jp</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiTEFVX3lxTFA4T3ktNUR5NDFTR0NTZ1lKVGNFX2J3RVo4SXVza1haek9YM3JWeGh4U3pWWlBKX3BUUTBzeGt5bDZrUFNTU243X2o5X0PSAVJBVV95cUxOUTRyeE8teDF1QkNmbXhOcTJzTVRrenlYLWFwLWwycXpwblpuUEJmSmlrRkh1Rjk5LUM0dHRjV0R0c3NxeGgzR1Z6UzBFbV9YWnJ3?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiTEFVX3lxTFA4T3ktNUR5NDFTR0NTZ1lKVGNFX2J3RVo4SXVza1haek9YM3JWeGh4U3pWWlBKX3BUUTBzeGt5bDZrUFNTU243X2o5X0PSAVJBVV95cUxOUTRyeE8teDF1QkNmbXhOcTJzTVRrenlYLWFwLWwycXpwblpuUEJmSmlrRkh1Rjk5LUM0dHRjV0R0c3NxeGgzR1Z6UzBFbV9YWnJ3?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">3. <a href="https://news.google.com/rss/articles/CBMitwFBVV95cUxQbTJqaUt5VV8wajN3SE9KNV9Pak1LZTljbkZXUmtHVDd3TnVJLWJmQ0FrZEdwQUs5eWNpLXNwdURGM1JYaUJmdmlpeXkwNXNJZThCZzNvNlFjZlhjb3ZvZEE3ejVoU1hmWUlYZWNIU2t3R1kzcnBla1E0VjMzWThtaXJPNzYxakNfa0c2Q2pFX3VqZjFmVi1aaldXMmROTUgtWnNiM3ZOU0pQVmItNW1Zckg3a1ROTk0?oc=5" target="_blank">「フォーム入力が面倒」「音声メモの手直しが苦手」…それ、Androidの最新AIに任せてみれば？ - ライフハッカー</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-15</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMitwFBVV95cUxQbTJqaUt5VV8wajN3SE9KNV9Pak1LZTljbkZXUmtHVDd3TnVJLWJmQ0FrZEdwQUs5eWNpLXNwdURGM1JYaUJmdmlpeXkwNXNJZThCZzNvNlFjZlhjb3ZvZEE3ejVoU1hmWUlYZWNIU2t3R1kzcnBla1E0VjMzWThtaXJPNzYxakNfa0c2Q2pFX3VqZjFmVi1aaldXMmROTUgtWnNiM3ZOU0pQVmItNW1Zckg3a1ROTk0?oc=5" target="_blank">https://news.google.com/rss/articles/CBMitwFBVV95cUxQbTJqaUt5VV8wajN3SE9KNV9Pak1LZTljbkZXUmtHVDd3TnVJLWJmQ0FrZEdwQUs5eWNpLXNwdURGM1JYaUJmdmlpeXkwNXNJZThCZzNvNlFjZlhjb3ZvZEE3ejVoU1hmWUlYZWNIU2t3R1kzcnBla1E0VjMzWThtaXJPNzYxakNfa0c2Q2pFX3VqZjFmVi1aaldXMmROTUgtWnNiM3ZOU0pQVmItNW1Zckg3a1ROTk0?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">4. <a href="https://news.google.com/rss/articles/CBMieEFVX3lxTE4tSkRxNV9fd2NjclFxMi1QajBXaWktVW5CVWM3ZmNzZE0wV1BzdWJvQVYxd3dCVDN5Tzdmem1ZSk5DX2tIMmpMSXJST0JDQXhXR2pVc1FjN2wwdURBTTdNcUVZU2Exc1Q3b0tOanFvRm8xSlc3Vlc2Zw?oc=5" target="_blank">Android、アカウントのGemini仕様ブルーグラデーションリング導入確認 - jetstream.blog</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMieEFVX3lxTE4tSkRxNV9fd2NjclFxMi1QajBXaWktVW5CVWM3ZmNzZE0wV1BzdWJvQVYxd3dCVDN5Tzdmem1ZSk5DX2tIMmpMSXJST0JDQXhXR2pVc1FjN2wwdURBTTdNcUVZU2Exc1Q3b0tOanFvRm8xSlc3Vlc2Zw?oc=5" target="_blank">https://news.google.com/rss/articles/CBMieEFVX3lxTE4tSkRxNV9fd2NjclFxMi1QajBXaWktVW5CVWM3ZmNzZE0wV1BzdWJvQVYxd3dCVDN5Tzdmem1ZSk5DX2tIMmpMSXJST0JDQXhXR2pVc1FjN2wwdURBTTdNcUVZU2Exc1Q3b0tOanFvRm8xSlc3Vlc2Zw?oc=5</a></p>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+<section class="source-section" id="kw_10">
+  <h2 class="source-title" style="border-left-color:#c43e1c;"><span class="kw-badge" style="background:#c43e1c;">🔑</span> GPT <span class="source-count">(4件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMiUEFVX3lxTE8zQUZLTzdfel93TzVSUWhFSFM2dHlqWDdTZjBMQ3pOX0VXdl9sRDZKNk5YRU1XWTAwTU1QZU1rR0dQZFpScDhwQk9qeHFtUW9i?oc=5" target="_blank">母親と弟を殺害した10代少年を起訴 チャットGPTで家族を殺害する架空の物語を作成 米 - CNN.co.jp</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiUEFVX3lxTE8zQUZLTzdfel93TzVSUWhFSFM2dHlqWDdTZjBMQ3pOX0VXdl9sRDZKNk5YRU1XWTAwTU1QZU1rR0dQZFpScDhwQk9qeHFtUW9i?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiUEFVX3lxTE8zQUZLTzdfel93TzVSUWhFSFM2dHlqWDdTZjBMQ3pOX0VXdl9sRDZKNk5YRU1XWTAwTU1QZU1rR0dQZFpScDhwQk9qeHFtUW9i?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">2. <a href="https://news.google.com/rss/articles/CBMidkFVX3lxTFBRNGZZN2V1UkYwUXI3N0Qwb2Y5WHB2N2xhVk5MUjd6Rkk0UWxvN3IxcGtIVnJXRzl6S195YXZjckVpN19kc3VKQmlCUDRkWjhWZFJTRzE2U1U2cDBvN3N0anBVX0RGeEx6VG9XSldxR0pmS3N5alE?oc=5" target="_blank">チャットGPTに相談し母と弟を殺害か 米の17歳少年訴追「空想のストーリーを相談」 - 産経ニュース</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMidkFVX3lxTFBRNGZZN2V1UkYwUXI3N0Qwb2Y5WHB2N2xhVk5MUjd6Rkk0UWxvN3IxcGtIVnJXRzl6S195YXZjckVpN19kc3VKQmlCUDRkWjhWZFJTRzE2U1U2cDBvN3N0anBVX0RGeEx6VG9XSldxR0pmS3N5alE?oc=5" target="_blank">https://news.google.com/rss/articles/CBMidkFVX3lxTFBRNGZZN2V1UkYwUXI3N0Qwb2Y5WHB2N2xhVk5MUjd6Rkk0UWxvN3IxcGtIVnJXRzl6S195YXZjckVpN19kc3VKQmlCUDRkWjhWZFJTRzE2U1U2cDBvN3N0anBVX0RGeEx6VG9XSldxR0pmS3N5alE?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">3. <a href="https://news.google.com/rss/articles/CBMiV0FVX3lxTE9kTUszOU1Qc0d2aWRZa0d5a1EtZEJ4a3RoOEt6bkd5UXlXRm9BRUsybVB0d2dWM0Z6Qy1wbFdTYXpTeEhKRmY2SUIwblM5MTBYM3NTZlVWUQ?oc=5" target="_blank">チャットGPTのロゴ（ロイター＝共同） - 米少年、AIに相談し母弟殺害か 東部ボストンの17歳訴追 - 写真・画像(1/1) - 西日本新聞me</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiV0FVX3lxTE9kTUszOU1Qc0d2aWRZa0d5a1EtZEJ4a3RoOEt6bkd5UXlXRm9BRUsybVB0d2dWM0Z6Qy1wbFdTYXpTeEhKRmY2SUIwblM5MTBYM3NTZlVWUQ?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiV0FVX3lxTE9kTUszOU1Qc0d2aWRZa0d5a1EtZEJ4a3RoOEt6bkd5UXlXRm9BRUsybVB0d2dWM0Z6Qy1wbFdTYXpTeEhKRmY2SUIwblM5MTBYM3NTZlVWUQ?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">4. <a href="https://news.google.com/rss/articles/CBMib0FVX3lxTE9pNjg1WFhrSmdvdklGa2FOUVVQcEFpOUh4c3k0QWFtZ29BNGhDMXhfcE45N3ZVM3NuRW14QWdhdWZvRGt4anZuRGpOMDlXTmF1ZnhNZFpidERlZVhnckNNVGZnbER4UGhzODhiOWNDRdIBd0FVX3lxTE9FaE1LXzFxYVBxNkl0TVQxendTUUxiNnBQa3pfclk3S3M4UmwzdlBUN2FDTWVLSmhSQi16WFJCeDE4SkJVOUxlRGJGWHZIV0RQQ3lacU0ycGhSdmQtMGEzdmJUQmdkS3FFUGFoNDFWenpRNk56WFY4?oc=5" target="_blank">「チャットGPT」に相談し母と弟殺害か　米東部の少年訴追、無罪を主張 - 日刊スポーツ</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMib0FVX3lxTE9pNjg1WFhrSmdvdklGa2FOUVVQcEFpOUh4c3k0QWFtZ29BNGhDMXhfcE45N3ZVM3NuRW14QWdhdWZvRGt4anZuRGpOMDlXTmF1ZnhNZFpidERlZVhnckNNVGZnbER4UGhzODhiOWNDRdIBd0FVX3lxTE9FaE1LXzFxYVBxNkl0TVQxendTUUxiNnBQa3pfclk3S3M4UmwzdlBUN2FDTWVLSmhSQi16WFJCeDE4SkJVOUxlRGJGWHZIV0RQQ3lacU0ycGhSdmQtMGEzdmJUQmdkS3FFUGFoNDFWenpRNk56WFY4?oc=5" target="_blank">https://news.google.com/rss/articles/CBMib0FVX3lxTE9pNjg1WFhrSmdvdklGa2FOUVVQcEFpOUh4c3k0QWFtZ29BNGhDMXhfcE45N3ZVM3NuRW14QWdhdWZvRGt4anZuRGpOMDlXTmF1ZnhNZFpidERlZVhnckNNVGZnbER4UGhzODhiOWNDRdIBd0FVX3lxTE9FaE1LXzFxYVBxNkl0TVQxendTUUxiNnBQa3pfclk3S3M4UmwzdlBUN2FDTWVLSmhSQi16WFJCeDE4SkJVOUxlRGJGWHZIV0RQQ3lacU0ycGhSdmQtMGEzdmJUQmdkS3FFUGFoNDFWenpRNk56WFY4?oc=5</a></p>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+<section class="source-section" id="kw_11">
+  <h2 class="source-title" style="border-left-color:#00b294;"><span class="kw-badge" style="background:#00b294;">🔑</span> Llama <span class="source-count">(1件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMiakFVX3lxTFAtc0lRNEdEakdmS3c0bVpMaDRLVGdoakhqY3d0NDFncDk5c0d4UmgzWk1Xcm9JM29WWExkZjdfUUhXRGVBQU5jQVd1MXByS1dRTFpmcG5zZ2JCTmdERGpmTG9obDRXX1BXWXc?oc=5" target="_blank">「Llama」Metaが開発したオープンソースの大規模言語モデル - forest.watch.impress.co.jp</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiakFVX3lxTFAtc0lRNEdEakdmS3c0bVpMaDRLVGdoakhqY3d0NDFncDk5c0d4UmgzWk1Xcm9JM29WWExkZjdfUUhXRGVBQU5jQVd1MXByS1dRTFpmcG5zZ2JCTmdERGpmTG9obDRXX1BXWXc?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiakFVX3lxTFAtc0lRNEdEakdmS3c0bVpMaDRLVGdoakhqY3d0NDFncDk5c0d4UmgzWk1Xcm9JM29WWExkZjdfUUhXRGVBQU5jQVd1MXByS1dRTFpmcG5zZ2JCTmdERGpmTG9obDRXX1BXWXc?oc=5</a></p>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+<section class="source-section" id="kw_12">
+  <h2 class="source-title" style="border-left-color:#6b69d6;"><span class="kw-badge" style="background:#6b69d6;">🔑</span> LLM <span class="source-count">(3件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMid0FVX3lxTFA2YlJUX1dnVmpvWGo2WXNKZmc0T1c1ZFpCemxSYTIxTXBHUXJQc1Y4eW9sWXcyZVN0LVhoMkVtXzFjN2R3azZZNzJ4TXU4ZUdKbnJaZ29CRi1WSi1leUpDbmRQb3l6MXBoZ2MyTUxmNEpoanU4VGM4?oc=5" target="_blank">ローカルLLMも「ネットを検索して回答」できるんだよね。対応してるアプリ3選 - gizmodo.jp</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMid0FVX3lxTFA2YlJUX1dnVmpvWGo2WXNKZmc0T1c1ZFpCemxSYTIxTXBHUXJQc1Y4eW9sWXcyZVN0LVhoMkVtXzFjN2R3azZZNzJ4TXU4ZUdKbnJaZ29CRi1WSi1leUpDbmRQb3l6MXBoZ2MyTUxmNEpoanU4VGM4?oc=5" target="_blank">https://news.google.com/rss/articles/CBMid0FVX3lxTFA2YlJUX1dnVmpvWGo2WXNKZmc0T1c1ZFpCemxSYTIxTXBHUXJQc1Y4eW9sWXcyZVN0LVhoMkVtXzFjN2R3azZZNzJ4TXU4ZUdKbnJaZ29CRi1WSi1leUpDbmRQb3l6MXBoZ2MyTUxmNEpoanU4VGM4?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">2. <a href="https://news.google.com/rss/articles/CBMib0FVX3lxTE93TmVMclFGcVJHZXlNRWpxdGpTV1Z6M01lX0h2d09VVDBDM2ZKcVNXWnI2cmo0d0NkTnRDZnN6dTVocHZYMk9vNmtzTHhodnpjOTZNMk5vX0t5UTBVcnhIWjlGNVJDT1FmT2szWlBLVQ?oc=5" target="_blank">【Ubuntu日和】【第91回】30万円のRadeon AI PRO R9700自腹購入！LLMにアプリを作らせて気づいた真実 - PC Watch</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMib0FVX3lxTE93TmVMclFGcVJHZXlNRWpxdGpTV1Z6M01lX0h2d09VVDBDM2ZKcVNXWnI2cmo0d0NkTnRDZnN6dTVocHZYMk9vNmtzTHhodnpjOTZNMk5vX0t5UTBVcnhIWjlGNVJDT1FmT2szWlBLVQ?oc=5" target="_blank">https://news.google.com/rss/articles/CBMib0FVX3lxTE93TmVMclFGcVJHZXlNRWpxdGpTV1Z6M01lX0h2d09VVDBDM2ZKcVNXWnI2cmo0d0NkTnRDZnN6dTVocHZYMk9vNmtzTHhodnpjOTZNMk5vX0t5UTBVcnhIWjlGNVJDT1FmT2szWlBLVQ?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">3. <a href="https://news.google.com/rss/articles/CBMiaEFVX3lxTE1Ec2pKYVhRU3NYTUJ4VHdwLTB6bEJjQ295SVU1Y2RjUW8tZmYwVE1Xc2V1WkNXOU5Ka3FEdmc0Mm9YNzZNTjd3b1N4OWU0RTcxc1RmZ1ZpWUYzbFRscmVsVUduSjhSZnc1?oc=5" target="_blank">潜在空間とは何か？──人類の創造性を解き放つ13の活用法 - WIRED.jp</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-meta item-related">関連キーワード: <span class="kw-tag">LLM</span><span class="kw-tag">大規模言語モデル</span></p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiaEFVX3lxTE1Ec2pKYVhRU3NYTUJ4VHdwLTB6bEJjQ295SVU1Y2RjUW8tZmYwVE1Xc2V1WkNXOU5Ka3FEdmc0Mm9YNzZNTjd3b1N4OWU0RTcxc1RmZ1ZpWUYzbFRscmVsVUduSjhSZnc1?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiaEFVX3lxTE1Ec2pKYVhRU3NYTUJ4VHdwLTB6bEJjQ295SVU1Y2RjUW8tZmYwVE1Xc2V1WkNXOU5Ka3FEdmc0Mm9YNzZNTjd3b1N4OWU0RTcxc1RmZ1ZpWUYzbFRscmVsVUduSjhSZnc1?oc=5</a></p>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+<section class="source-section" id="kw_13">
+  <h2 class="source-title" style="border-left-color:#bf0077;"><span class="kw-badge" style="background:#bf0077;">🔑</span> Meta AI <span class="source-count">(5件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMif0FVX3lxTE5DVXZfbl91S1dGUDc3SzlQV1lBOWt6VUZuUFZldENYU2dXTjFMMkxnSDJDZTVxUk1paWdnQ3hmZnJJUFRiUWIxbmZIS1o4VlJSeUk3U2N1SHROY1RmcDNQSDcyc2s5Z0lXaFlYWGxTYm9JckN1bFBOLWFNbkdxUGc?oc=5" target="_blank">【サングラスで写真や音楽、通話まで!?】オークリー×Metaの話題作！カメラ・スピーカー・AI搭載の「Oakley Meta HSTN」が優秀すぎた（MonoMax Web） - Yahoo!ニュース</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMif0FVX3lxTE5DVXZfbl91S1dGUDc3SzlQV1lBOWt6VUZuUFZldENYU2dXTjFMMkxnSDJDZTVxUk1paWdnQ3hmZnJJUFRiUWIxbmZIS1o4VlJSeUk3U2N1SHROY1RmcDNQSDcyc2s5Z0lXaFlYWGxTYm9JckN1bFBOLWFNbkdxUGc?oc=5" target="_blank">https://news.google.com/rss/articles/CBMif0FVX3lxTE5DVXZfbl91S1dGUDc3SzlQV1lBOWt6VUZuUFZldENYU2dXTjFMMkxnSDJDZTVxUk1paWdnQ3hmZnJJUFRiUWIxbmZIS1o4VlJSeUk3U2N1SHROY1RmcDNQSDcyc2s5Z0lXaFlYWGxTYm9JckN1bFBOLWFNbkdxUGc?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">2. <a href="https://news.google.com/rss/articles/CBMifEFVX3lxTE16c2k2NFoyRElsTnB2RE0wazh3U1ZNdFluX01RNWdKVjF0NUhxLUJmZUdWYVBuaDRGUlFoOHdLNjRybjNPVURnWEtIRWJleUZIalZHaGJIaGRoVFdsMDBMUWFNV1E0SmtyaVlFYkVycUdMZnU2bEEycFUwb3Q?oc=5" target="_blank">AI glasses for foodies: Share your latest restaurant finds - Meta Store</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-15</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMifEFVX3lxTE16c2k2NFoyRElsTnB2RE0wazh3U1ZNdFluX01RNWdKVjF0NUhxLUJmZUdWYVBuaDRGUlFoOHdLNjRybjNPVURnWEtIRWJleUZIalZHaGJIaGRoVFdsMDBMUWFNV1E0SmtyaVlFYkVycUdMZnU2bEEycFUwb3Q?oc=5" target="_blank">https://news.google.com/rss/articles/CBMifEFVX3lxTE16c2k2NFoyRElsTnB2RE0wazh3U1ZNdFluX01RNWdKVjF0NUhxLUJmZUdWYVBuaDRGUlFoOHdLNjRybjNPVURnWEtIRWJleUZIalZHaGJIaGRoVFdsMDBMUWFNV1E0SmtyaVlFYkVycUdMZnU2bEEycFUwb3Q?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">3. <a href="https://news.google.com/rss/articles/CBMibkFVX3lxTE5aeFRaQVpTeHhrQnk5SGUtY2dRQm03aWZBbDBYTmJjbVZrdWF4enhla1RRbjd4V1ZqX29vZkY1V2hhVWd3Q203b191cnNLVC1aQk5sT1RkcmZTY01mWV9LbF9sN2NXQTBmOWxsLXZB?oc=5" target="_blank">メタの個人向けAI構想に不信感が広がる、ザッカーバーグ氏の約束と利用者の現実に隔たり - Межа. Новини України.</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMibkFVX3lxTE5aeFRaQVpTeHhrQnk5SGUtY2dRQm03aWZBbDBYTmJjbVZrdWF4enhla1RRbjd4V1ZqX29vZkY1V2hhVWd3Q203b191cnNLVC1aQk5sT1RkcmZTY01mWV9LbF9sN2NXQTBmOWxsLXZB?oc=5" target="_blank">https://news.google.com/rss/articles/CBMibkFVX3lxTE5aeFRaQVpTeHhrQnk5SGUtY2dRQm03aWZBbDBYTmJjbVZrdWF4enhla1RRbjd4V1ZqX29vZkY1V2hhVWd3Q203b191cnNLVC1aQk5sT1RkcmZTY01mWV9LbF9sN2NXQTBmOWxsLXZB?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">4. <a href="https://news.google.com/rss/articles/CBMiU0FVX3lxTE5rMU01clAxVFZYWnhfYTBpOGdQZ1hpcHhKZ3NHaEYzYkd0T0c2NVRLRGJXYXBuanl1U3NubVlGT3JVTUVNYUN2R0NFdV9XLVQtOGpZ?oc=5" target="_blank">中国発AI「マナス」、米メタによる約3000億円の買収白紙で独立企業として事業再開へ - 東京報道新聞</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiU0FVX3lxTE5rMU01clAxVFZYWnhfYTBpOGdQZ1hpcHhKZ3NHaEYzYkd0T0c2NVRLRGJXYXBuanl1U3NubVlGT3JVTUVNYUN2R0NFdV9XLVQtOGpZ?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiU0FVX3lxTE5rMU01clAxVFZYWnhfYTBpOGdQZ1hpcHhKZ3NHaEYzYkd0T0c2NVRLRGJXYXBuanl1U3NubVlGT3JVTUVNYUN2R0NFdV9XLVQtOGpZ?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">5. <a href="https://news.google.com/rss/articles/CBMib0FVX3lxTFB1NHlzWTEwTDJlU0lrSDNJenRKbFVZdW5oUUlTaTdOdlgwMmVmWG54WFR1VUc0YUZjbzZQNy1qOVgyRG9paGRXVWNwRGhJZXlZS1pfNnEyWXhqdHU0THBTTDhUSzViZE9idUlHQmpvZ9IBaEFVX3lxTE9FdEtpbmdXUUtXblAxUWxlQnlmODRTZXY1OTAzX19aLU1ETUlRVTdUU0EtZldkbnJPTGRoMjFIRkVLRG83LVdsa3oxYl9nYkRCazloYU9TV3paeUd3VkpXbTF5NTlUZkFa?oc=5" target="_blank">ソニーとTSMCが合弁会社設立へ／MetaやSpaceXAIなど最新AIモデルの発表ラッシュ：週末の「気になるニュース」一気読み！（1/3 ページ） - ITmedia PC USER - ITmedia</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-15</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMib0FVX3lxTFB1NHlzWTEwTDJlU0lrSDNJenRKbFVZdW5oUUlTaTdOdlgwMmVmWG54WFR1VUc0YUZjbzZQNy1qOVgyRG9paGRXVWNwRGhJZXlZS1pfNnEyWXhqdHU0THBTTDhUSzViZE9idUlHQmpvZ9IBaEFVX3lxTE9FdEtpbmdXUUtXblAxUWxlQnlmODRTZXY1OTAzX19aLU1ETUlRVTdUU0EtZldkbnJPTGRoMjFIRkVLRG83LVdsa3oxYl9nYkRCazloYU9TV3paeUd3VkpXbTF5NTlUZkFa?oc=5" target="_blank">https://news.google.com/rss/articles/CBMib0FVX3lxTFB1NHlzWTEwTDJlU0lrSDNJenRKbFVZdW5oUUlTaTdOdlgwMmVmWG54WFR1VUc0YUZjbzZQNy1qOVgyRG9paGRXVWNwRGhJZXlZS1pfNnEyWXhqdHU0THBTTDhUSzViZE9idUlHQmpvZ9IBaEFVX3lxTE9FdEtpbmdXUUtXblAxUWxlQnlmODRTZXY1OTAzX19aLU1ETUlRVTdUU0EtZldkbnJPTGRoMjFIRkVLRG83LVdsa3oxYl9nYkRCazloYU9TV3paeUd3VkpXbTF5NTlUZkFa?oc=5</a></p>
+      <div class="related-stocks">📈 関連銘柄: <a href="https://kabutan.jp/stock/?code=6758" target="_blank" class="stock-link">6758</a><span class="stock-company">ソニーグループ</span></div>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+<section class="source-section" id="kw_14">
+  <h2 class="source-title" style="border-left-color:#498205;"><span class="kw-badge" style="background:#498205;">🔑</span> Microsoft AI <span class="source-count">(1件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMif0FVX3lxTE1QYzl3OGZWRzI3bXhTaHJseGhmcFZGY3NNMlppWFl6ejNKejJESWFNMUNvdk9RTlFZb2V5SFNoazBza0RHSlJoVWlaRTV4d3pUSXFuR0xJYlFoOFlTZmJHbnN5MC1PMWUzUnhSak9aemdJT1o4SFZURzZ4V0wxSHM?oc=5" target="_blank">Windows OEMライセンス料“サイレント値上げ”のショック PC価格高騰の裏でMicrosoftが急ぐAI投資の回収 - Yahoo!ニュース</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMif0FVX3lxTE1QYzl3OGZWRzI3bXhTaHJseGhmcFZGY3NNMlppWFl6ejNKejJESWFNMUNvdk9RTlFZb2V5SFNoazBza0RHSlJoVWlaRTV4d3pUSXFuR0xJYlFoOFlTZmJHbnN5MC1PMWUzUnhSak9aemdJT1o4SFZURzZ4V0wxSHM?oc=5" target="_blank">https://news.google.com/rss/articles/CBMif0FVX3lxTE1QYzl3OGZWRzI3bXhTaHJseGhmcFZGY3NNMlppWFl6ejNKejJESWFNMUNvdk9RTlFZb2V5SFNoazBza0RHSlJoVWlaRTV4d3pUSXFuR0xJYlFoOFlTZmJHbnN5MC1PMWUzUnhSak9aemdJT1o4SFZURzZ4V0wxSHM?oc=5</a></p>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+<section class="source-section" id="kw_15">
+  <h2 class="source-title" style="border-left-color:#7a7574;"><span class="kw-badge" style="background:#7a7574;">🔑</span> NVIDIA AI <span class="source-count">(3件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMiakFVX3lxTE5LTl9mWGhtcGRMcHJPLUF3OVhPc1dtcWIzU09Xa2lFLTBzRzdiZWdJZXlfSzhqajZqN0RHa3p5c3pXMDdaWGFMNzEtWlFCa0NjRG82OWJVYVNmTmVxYWxsUGVkeDBfTjJ6enc?oc=5" target="_blank">NvidiaのネオクラウドへのAI資金調達、大きな収益源になる可能性——モルガン・スタンレー 執筆 - Investing.com - FX | 株式市場 | ファイナンス | 金融ニュース</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiakFVX3lxTE5LTl9mWGhtcGRMcHJPLUF3OVhPc1dtcWIzU09Xa2lFLTBzRzdiZWdJZXlfSzhqajZqN0RHa3p5c3pXMDdaWGFMNzEtWlFCa0NjRG82OWJVYVNmTmVxYWxsUGVkeDBfTjJ6enc?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiakFVX3lxTE5LTl9mWGhtcGRMcHJPLUF3OVhPc1dtcWIzU09Xa2lFLTBzRzdiZWdJZXlfSzhqajZqN0RHa3p5c3pXMDdaWGFMNzEtWlFCa0NjRG82OWJVYVNmTmVxYWxsUGVkeDBfTjJ6enc?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">2. <a href="https://news.google.com/rss/articles/CBMiTkFVX3lxTE1TWnhub1BLaDAzeTJPX2w5SWJQTTQ0bnUyU1RWOFlWTUY1QmNYOHRwdXJCbGZSYVdLUXJfV2R0dUotVEViM3BsUzZsTGdHdw?oc=5" target="_blank">激化するAI資金調達競争 Living Larger and Larger: Inside the AI Financing Scramble｜【WEEKLY】2026年8月16日号 - バロンズ・ダイジェスト</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiTkFVX3lxTE1TWnhub1BLaDAzeTJPX2w5SWJQTTQ0bnUyU1RWOFlWTUY1QmNYOHRwdXJCbGZSYVdLUXJfV2R0dUotVEViM3BsUzZsTGdHdw?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiTkFVX3lxTE1TWnhub1BLaDAzeTJPX2w5SWJQTTQ0bnUyU1RWOFlWTUY1QmNYOHRwdXJCbGZSYVdLUXJfV2R0dUotVEViM3BsUzZsTGdHdw?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">3. <a href="https://news.google.com/rss/articles/CBMidEFVX3lxTE51cHA3b2VSSW15U3VEZVJmb1RnWGRsZk4zYkwyMzVjdlM2WnU0NzYtWUEzSWE2TF9tYmJEc3BBN0huTFV2ei1Ca0ZNNVVjUGJwdXJ1Mm1oRXd2cnNIOUl1U3FiSjlRVmx2Uk5wcFhrSzdFbWlx?oc=5" target="_blank">トランプ氏のテック顧問、エヌビディアの5,000億ドルAI融資計画が「ダークGPU」過剰危機を招く恐れと警告 - BigGo ファイナンス</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMidEFVX3lxTE51cHA3b2VSSW15U3VEZVJmb1RnWGRsZk4zYkwyMzVjdlM2WnU0NzYtWUEzSWE2TF9tYmJEc3BBN0huTFV2ei1Ca0ZNNVVjUGJwdXJ1Mm1oRXd2cnNIOUl1U3FiSjlRVmx2Uk5wcFhrSzdFbWlx?oc=5" target="_blank">https://news.google.com/rss/articles/CBMidEFVX3lxTE51cHA3b2VSSW15U3VEZVJmb1RnWGRsZk4zYkwyMzVjdlM2WnU0NzYtWUEzSWE2TF9tYmJEc3BBN0huTFV2ei1Ca0ZNNVVjUGJwdXJ1Mm1oRXd2cnNIOUl1U3FiSjlRVmx2Uk5wcFhrSzdFbWlx?oc=5</a></p>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+<section class="source-section" id="kw_16">
+  <h2 class="source-title" style="border-left-color:#69797e;"><span class="kw-badge" style="background:#69797e;">🔑</span> OpenAI <span class="source-count">(4件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMiQEFVX3lxTE00Y25TZjBsZ2tHTE5HOGVCeHN2MVpzLUdLdFBqX1hySDJveVJvVlBJcmRHblhxdmNZbVY1YU5mVEE?oc=5" target="_blank">「GPTsもう作れない…！」——個人アカウントで突然消えたボタン、OpenAIが線引きした基準 - shiritomo</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiQEFVX3lxTE00Y25TZjBsZ2tHTE5HOGVCeHN2MVpzLUdLdFBqX1hySDJveVJvVlBJcmRHblhxdmNZbVY1YU5mVEE?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiQEFVX3lxTE00Y25TZjBsZ2tHTE5HOGVCeHN2MVpzLUdLdFBqX1hySDJveVJvVlBJcmRHblhxdmNZbVY1YU5mVEE?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">2. <a href="https://news.google.com/rss/articles/CBMiWkFVX3lxTE81UHpfV2ctQXdYYl9hUGN6U21fTkVBeHFielA0amltaC1oS3c3QWtqVnhQd1VJWFh3aC0zRXRMM0YycndMcmpZQVdnR0FadVRTWXI1UWdPS1RlZw?oc=5" target="_blank">デザイナーはテクノロジー業界で最も不幸な職種。OpenAIのデザイン責任者は「歴史上最高の時代」と語る - BigGo ファイナンス</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiWkFVX3lxTE81UHpfV2ctQXdYYl9hUGN6U21fTkVBeHFielA0amltaC1oS3c3QWtqVnhQd1VJWFh3aC0zRXRMM0YycndMcmpZQVdnR0FadVRTWXI1UWdPS1RlZw?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiWkFVX3lxTE81UHpfV2ctQXdYYl9hUGN6U21fTkVBeHFielA0amltaC1oS3c3QWtqVnhQd1VJWFh3aC0zRXRMM0YycndMcmpZQVdnR0FadVRTWXI1UWdPS1RlZw?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">3. <a href="https://news.google.com/rss/articles/CBMijAFBVV95cUxOYjBGMmhsVUFheFZUTHFJRnI3LXhzRVc0d0ktUXN5RmN1b0cwZXo2TzZlOEI3THhGdmhDRHZmRHFjaDFhZnU2bW9ZanRBSk5iYWF6bEVDVDRDMTlvcXdsVmFEanlUVFAwcWJDemNEVFdXd3l5dENJRWNKTkFLTDV0N0Y1cWxkVDloaVNVbA?oc=5" target="_blank">OpenAIの｢サイバー暴走｣ 防御の失敗で見えた3つの弱点 - 日本経済新聞</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMijAFBVV95cUxOYjBGMmhsVUFheFZUTHFJRnI3LXhzRVc0d0ktUXN5RmN1b0cwZXo2TzZlOEI3THhGdmhDRHZmRHFjaDFhZnU2bW9ZanRBSk5iYWF6bEVDVDRDMTlvcXdsVmFEanlUVFAwcWJDemNEVFdXd3l5dENJRWNKTkFLTDV0N0Y1cWxkVDloaVNVbA?oc=5" target="_blank">https://news.google.com/rss/articles/CBMijAFBVV95cUxOYjBGMmhsVUFheFZUTHFJRnI3LXhzRVc0d0ktUXN5RmN1b0cwZXo2TzZlOEI3THhGdmhDRHZmRHFjaDFhZnU2bW9ZanRBSk5iYWF6bEVDVDRDMTlvcXdsVmFEanlUVFAwcWJDemNEVFdXd3l5dENJRWNKTkFLTDV0N0Y1cWxkVDloaVNVbA?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">4. <a href="https://news.google.com/rss/articles/CBMiXkFVX3lxTE5KUG0zUnRTYW5mYVVrQlNuUlR6RUE5NVBfRWZhMy04dmlTX2JzN0pLeXc1N2FNdXNYb1NlelJEY3dCbUNtWmRJckNXcEd2SDYzakdaQ3hvcEVzQWUxenc?oc=5" target="_blank">OpenAIのデザイン責任者：デザイナーにとって史上最高の時代 | イアン・シルバー｜Lenny's Podcast - BigGo ファイナンス</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiXkFVX3lxTE5KUG0zUnRTYW5mYVVrQlNuUlR6RUE5NVBfRWZhMy04dmlTX2JzN0pLeXc1N2FNdXNYb1NlelJEY3dCbUNtWmRJckNXcEd2SDYzakdaQ3hvcEVzQWUxenc?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiXkFVX3lxTE5KUG0zUnRTYW5mYVVrQlNuUlR6RUE5NVBfRWZhMy04dmlTX2JzN0pLeXc1N2FNdXNYb1NlelJEY3dCbUNtWmRJckNXcEd2SDYzakdaQ3hvcEVzQWUxenc?oc=5</a></p>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+<section class="source-section" id="kw_17">
+  <h2 class="source-title" style="border-left-color:#767676;"><span class="kw-badge" style="background:#767676;">🔑</span> xAI <span class="source-count">(2件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMiYEFVX3lxTE93STNSSlNTRHhvVkdUcklYMzdCT0NDTkdvMWhCSzMtTEZVWERQeHdZNjhRVTRQbXRHcnBTRHpzQklqN2dxRDY5Y3F4NThzMXZaNjR4WmVvTWlLVmk3OXhBbA?oc=5" target="_blank">500 VND（ベトナム・ドン）をXAI（Xai）に変換 - Bybit</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiYEFVX3lxTE93STNSSlNTRHhvVkdUcklYMzdCT0NDTkdvMWhCSzMtTEZVWERQeHdZNjhRVTRQbXRHcnBTRHpzQklqN2dxRDY5Y3F4NThzMXZaNjR4WmVvTWlLVmk3OXhBbA?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiYEFVX3lxTE93STNSSlNTRHhvVkdUcklYMzdCT0NDTkdvMWhCSzMtTEZVWERQeHdZNjhRVTRQbXRHcnBTRHpzQklqN2dxRDY5Y3F4NThzMXZaNjR4WmVvTWlLVmk3OXhBbA?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">2. <a href="https://news.google.com/rss/articles/CBMiqAFBVV95cUxQakFxejRacTNsQVkteFFCdUw4cmV6TWJHUVoxVkpZdzFZMmNNT0Z0eVJvY21mNlJMYW50d21JS01jQ0p4dGtMS1JxTjNtYnlYWXM4dkZwbmZ3UTEyT29UZU12dU9ET2UwTl9ESlZjeElXSkpFdnZ1aDVaeXdPTDhvNGxJaUhka0llbm9scEtHaVNuaE5Mb0tMOWFWZVNNdmI0b3dBRkhYTzg?oc=5" target="_blank">継父がGrokを使って彼女のポルノ画像7000枚を作成したとして、女性がxAIを提訴。 - Vietnam.vn</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiqAFBVV95cUxQakFxejRacTNsQVkteFFCdUw4cmV6TWJHUVoxVkpZdzFZMmNNT0Z0eVJvY21mNlJMYW50d21JS01jQ0p4dGtMS1JxTjNtYnlYWXM4dkZwbmZ3UTEyT29UZU12dU9ET2UwTl9ESlZjeElXSkpFdnZ1aDVaeXdPTDhvNGxJaUhka0llbm9scEtHaVNuaE5Mb0tMOWFWZVNNdmI0b3dBRkhYTzg?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiqAFBVV95cUxQakFxejRacTNsQVkteFFCdUw4cmV6TWJHUVoxVkpZdzFZMmNNT0Z0eVJvY21mNlJMYW50d21JS01jQ0p4dGtMS1JxTjNtYnlYWXM4dkZwbmZ3UTEyT29UZU12dU9ET2UwTl9ESlZjeElXSkpFdnZ1aDVaeXdPTDhvNGxJaUhka0llbm9scEtHaVNuaE5Mb0tMOWFWZVNNdmI0b3dBRkhYTzg?oc=5</a></p>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+<section class="source-section" id="kw_18">
+  <h2 class="source-title" style="border-left-color:#0063b1;"><span class="kw-badge" style="background:#0063b1;">🔑</span> ディープフェイク <span class="source-count">(1件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMidEFVX3lxTFBfQkZQdnVZVVZBQjB4dWF2RzM5dDdUYm1VMjZEdjgxNXh3MWx3UGFrQ084RzhCcmgyWjJ1ekdBVE5RQVZCUTFVNTVRVjY4amdvYk1TOTU5X0dkWG15eDFla3RoVDZpc0R3NzhIQXkxa0FldEl0?oc=5" target="_blank">北朝鮮ハッキング、韓国への集中攻撃19件で最多…AI・ディープフェイクまで動員 - BigGo ファイナンス</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMidEFVX3lxTFBfQkZQdnVZVVZBQjB4dWF2RzM5dDdUYm1VMjZEdjgxNXh3MWx3UGFrQ084RzhCcmgyWjJ1ekdBVE5RQVZCUTFVNTVRVjY4amdvYk1TOTU5X0dkWG15eDFla3RoVDZpc0R3NzhIQXkxa0FldEl0?oc=5" target="_blank">https://news.google.com/rss/articles/CBMidEFVX3lxTFBfQkZQdnVZVVZBQjB4dWF2RzM5dDdUYm1VMjZEdjgxNXh3MWx3UGFrQ084RzhCcmgyWjJ1ekdBVE5RQVZCUTFVNTVRVjY4amdvYk1TOTU5X0dkWG15eDFla3RoVDZpc0R3NzhIQXkxa0FldEl0?oc=5</a></p>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+<section class="source-section" id="kw_19">
+  <h2 class="source-title" style="border-left-color:#e81123;"><span class="kw-badge" style="background:#e81123;">🔑</span> マルチモーダルAI <span class="source-count">(4件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMisAFBVV95cUxQRFBjeTd4RTVmQnVJckYyS3hvT3hfcS1vLVhmQllRanZkTmVkb04wcEQyVktuSHZxZ196ODdzZHlwaE1KbzVBLVprbU1rZTRwSDkzcTR0UTJYVXcteGdwenZzaHNkVXRNVmVuM1VZVEdCV3dibGd6akY2MmhKNllFS2dnYnRWUEdZbl9QQTF2a0tGdWdhWGZSeEJlaWMtS3dvT1dqY1B0bnR6Tm0yb2tvUQ?oc=5" target="_blank">Alibaba、MacBookで動作するマルチモーダルAI「Qwen3.8-27B」を公開 - 디지털투데이</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMisAFBVV95cUxQRFBjeTd4RTVmQnVJckYyS3hvT3hfcS1vLVhmQllRanZkTmVkb04wcEQyVktuSHZxZ196ODdzZHlwaE1KbzVBLVprbU1rZTRwSDkzcTR0UTJYVXcteGdwenZzaHNkVXRNVmVuM1VZVEdCV3dibGd6akY2MmhKNllFS2dnYnRWUEdZbl9QQTF2a0tGdWdhWGZSeEJlaWMtS3dvT1dqY1B0bnR6Tm0yb2tvUQ?oc=5" target="_blank">https://news.google.com/rss/articles/CBMisAFBVV95cUxQRFBjeTd4RTVmQnVJckYyS3hvT3hfcS1vLVhmQllRanZkTmVkb04wcEQyVktuSHZxZ196ODdzZHlwaE1KbzVBLVprbU1rZTRwSDkzcTR0UTJYVXcteGdwenZzaHNkVXRNVmVuM1VZVEdCV3dibGd6akY2MmhKNllFS2dnYnRWUEdZbl9QQTF2a0tGdWdhWGZSeEJlaWMtS3dvT1dqY1B0bnR6Tm0yb2tvUQ?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">2. <a href="https://news.google.com/rss/articles/CBMiX0FVX3lxTFBfLV9NSEROc3psUHVOYjhOMnRMclZKMnFid1Uyb1ZocmZsSFZMa3RyMTkwNTUxcGtoSW9XRXh2N2dBVk9lb2JERTY4S1dUV2sycUhKeU9jaWtoRjRPNjBr?oc=5" target="_blank">フィジカルAI「FRONTia」始動---国産AI開発に78兆5000億円投資 - レスポンス（Response.jp）</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiX0FVX3lxTFBfLV9NSEROc3psUHVOYjhOMnRMclZKMnFid1Uyb1ZocmZsSFZMa3RyMTkwNTUxcGtoSW9XRXh2N2dBVk9lb2JERTY4S1dUV2sycUhKeU9jaWtoRjRPNjBr?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiX0FVX3lxTFBfLV9NSEROc3psUHVOYjhOMnRMclZKMnFid1Uyb1ZocmZsSFZMa3RyMTkwNTUxcGtoSW9XRXh2N2dBVk9lb2JERTY4S1dUV2sycUhKeU9jaWtoRjRPNjBr?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">3. <a href="https://news.google.com/rss/articles/CBMikgFBVV95cUxNLXdwblVxZnU0RjNZaEw4ZkdPa3BaZWZSZ01qWHh3TWZIQ1lzaFN1b3FabkRMTFlzWk9fZ1U3RWc0UUl1a2R4RDZpRDFrSHE5MTQ3aUhMOTJybnN2MzhZbmJ3MlVtRXVibm9nRGlFT094ZHRhTGtyTWVEVDM5UHVOeS0xRi1vUmRaLXJXNlVsSUZBQQ?oc=5" target="_blank">AIは「見て」から間違えている。知覚だけを試す新ベンチマークが暴いた60%の壁 - XenoSpectrum</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMikgFBVV95cUxNLXdwblVxZnU0RjNZaEw4ZkdPa3BaZWZSZ01qWHh3TWZIQ1lzaFN1b3FabkRMTFlzWk9fZ1U3RWc0UUl1a2R4RDZpRDFrSHE5MTQ3aUhMOTJybnN2MzhZbmJ3MlVtRXVibm9nRGlFT094ZHRhTGtyTWVEVDM5UHVOeS0xRi1vUmRaLXJXNlVsSUZBQQ?oc=5" target="_blank">https://news.google.com/rss/articles/CBMikgFBVV95cUxNLXdwblVxZnU0RjNZaEw4ZkdPa3BaZWZSZ01qWHh3TWZIQ1lzaFN1b3FabkRMTFlzWk9fZ1U3RWc0UUl1a2R4RDZpRDFrSHE5MTQ3aUhMOTJybnN2MzhZbmJ3MlVtRXVibm9nRGlFT094ZHRhTGtyTWVEVDM5UHVOeS0xRi1vUmRaLXJXNlVsSUZBQQ?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">4. <a href="https://news.google.com/rss/articles/CBMiQEFVX3lxTE9kWGJvZ2sweHJlVHZMa1BiYzE2MmFkdURZc18xdk9BWWhvb0tHYWRFYmhZQ1Axc0JOWFZQZTktMGk?oc=5" target="_blank">「お金かからない」動画生成AI、MiniMax H3にローカル勢が飛びついた理由 - shiritomo</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiQEFVX3lxTE9kWGJvZ2sweHJlVHZMa1BiYzE2MmFkdURZc18xdk9BWWhvb0tHYWRFYmhZQ1Axc0JOWFZQZTktMGk?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiQEFVX3lxTE9kWGJvZ2sweHJlVHZMa1BiYzE2MmFkdURZc18xdk9BWWhvb0tHYWRFYmhZQ1Axc0JOWFZQZTktMGk?oc=5</a></p>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+<section class="source-section" id="kw_20">
+  <h2 class="source-title" style="border-left-color:#0078d4;"><span class="kw-badge" style="background:#0078d4;">🔑</span> ロボティクス <span class="source-count">(1件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMif0FVX3lxTE9heWdVay1fV2JuZzJ0QWJZT2w0bTJncnJBd1lVLU5nTTh5UmpjNS1jX1dSbEFqb3pvcFFNLXdpRXItWTk1QnlyUzduakN0RFNKc21yeXM5VGI4VHRzVXU0WE1rTkF6VUtvZ2FCZXdTeDI2N29ZRFBBcXlMYXNqeVXSAYQBQVVfeXFMUFJHU1Jfc3JTRUZ0Qkw0b2tQd19XM19ZdXFOZHUwcEszV0dObXhXc0ZlcjBRYlNZOUdGc2VTUFQ3S2xQRFNGcjc2VVJRUG5TOGp6Z1h5Yk91RWdlbTBtNkxiVHpCQkhVazlzNkRKdUtvQkVSb1JoWFFOYzI3ZHlVcHNteHFS?oc=5" target="_blank">Aiロボティクス、「Yunth」秋限定スキンケアセットをQoo10で発売へ 最大60％割引の6種セット - ｄメニューニュース</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-15</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMif0FVX3lxTE9heWdVay1fV2JuZzJ0QWJZT2w0bTJncnJBd1lVLU5nTTh5UmpjNS1jX1dSbEFqb3pvcFFNLXdpRXItWTk1QnlyUzduakN0RFNKc21yeXM5VGI4VHRzVXU0WE1rTkF6VUtvZ2FCZXdTeDI2N29ZRFBBcXlMYXNqeVXSAYQBQVVfeXFMUFJHU1Jfc3JTRUZ0Qkw0b2tQd19XM19ZdXFOZHUwcEszV0dObXhXc0ZlcjBRYlNZOUdGc2VTUFQ3S2xQRFNGcjc2VVJRUG5TOGp6Z1h5Yk91RWdlbTBtNkxiVHpCQkhVazlzNkRKdUtvQkVSb1JoWFFOYzI3ZHlVcHNteHFS?oc=5" target="_blank">https://news.google.com/rss/articles/CBMif0FVX3lxTE9heWdVay1fV2JuZzJ0QWJZT2w0bTJncnJBd1lVLU5nTTh5UmpjNS1jX1dSbEFqb3pvcFFNLXdpRXItWTk1QnlyUzduakN0RFNKc21yeXM5VGI4VHRzVXU0WE1rTkF6VUtvZ2FCZXdTeDI2N29ZRFBBcXlMYXNqeVXSAYQBQVVfeXFMUFJHU1Jfc3JTRUZ0Qkw0b2tQd19XM19ZdXFOZHUwcEszV0dObXhXc0ZlcjBRYlNZOUdGc2VTUFQ3S2xQRFNGcjc2VVJRUG5TOGp6Z1h5Yk91RWdlbTBtNkxiVHpCQkhVazlzNkRKdUtvQkVSb1JoWFFOYzI3ZHlVcHNteHFS?oc=5</a></p>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+<section class="source-section" id="kw_21">
+  <h2 class="source-title" style="border-left-color:#107c10;"><span class="kw-badge" style="background:#107c10;">🔑</span> 人工知能 <span class="source-count">(9件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMiWkFVX3lxTE5FWVkwOHY5Y0VURWM5QU9HbGE5UHZuYzFoaXg1VWh4ZzI5UURvRHZLbEFPMklER3ZnNjlxTENoUVBpNHpwNlBlZ0ZQT2ZhM0VxN3VnWkNfMWI1UQ?oc=5" target="_blank">アンソロピックのIPO、AIブームに突きつけられる過去最大の試金石に - Forbes JAPAN</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiWkFVX3lxTE5FWVkwOHY5Y0VURWM5QU9HbGE5UHZuYzFoaXg1VWh4ZzI5UURvRHZLbEFPMklER3ZnNjlxTENoUVBpNHpwNlBlZ0ZQT2ZhM0VxN3VnWkNfMWI1UQ?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiWkFVX3lxTE5FWVkwOHY5Y0VURWM5QU9HbGE5UHZuYzFoaXg1VWh4ZzI5UURvRHZLbEFPMklER3ZnNjlxTENoUVBpNHpwNlBlZ0ZQT2ZhM0VxN3VnWkNfMWI1UQ?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">2. <a href="https://news.google.com/rss/articles/CBMiaEFVX3lxTE0wWDBWOUNRQnZZX0ZWaWF5cEJONWJ6VEpSN1E2TWhhN21iNWUyZG0zMzN2OHRPaUlHbm01YzU2YS1jRXRjUmk3Rl9PLU84a1ZzMVVRLXJVMDdhSGtxY2NLNnRBUjNSdjRo?oc=5" target="_blank">特攻隊員が笑み浮かべるAI動画 元隊員は「見たくない」 - 毎日新聞</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiaEFVX3lxTE0wWDBWOUNRQnZZX0ZWaWF5cEJONWJ6VEpSN1E2TWhhN21iNWUyZG0zMzN2OHRPaUlHbm01YzU2YS1jRXRjUmk3Rl9PLU84a1ZzMVVRLXJVMDdhSGtxY2NLNnRBUjNSdjRo?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiaEFVX3lxTE0wWDBWOUNRQnZZX0ZWaWF5cEJONWJ6VEpSN1E2TWhhN21iNWUyZG0zMzN2OHRPaUlHbm01YzU2YS1jRXRjUmk3Rl9PLU84a1ZzMVVRLXJVMDdhSGtxY2NLNnRBUjNSdjRo?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">3. <a href="https://news.google.com/rss/articles/CBMid0FVX3lxTE1vTnRhcmpEYkdhS0dqSDZ4aGJNVlg5MFlaMm1yeFdyNzQ5VENRdkRWclNlTnJxdlN4V1RzTWx1a1N5RjRneUEwdzVDdHlBcmVCSnBJeG9iekpadV9vUWN0QkpSYWwtSTY2eHhHZ0EybC1TNW8wYXdz?oc=5" target="_blank">汎用人工知能が向かう先 誰も傍観者になるな - 日本経済新聞</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMid0FVX3lxTE1vTnRhcmpEYkdhS0dqSDZ4aGJNVlg5MFlaMm1yeFdyNzQ5VENRdkRWclNlTnJxdlN4V1RzTWx1a1N5RjRneUEwdzVDdHlBcmVCSnBJeG9iekpadV9vUWN0QkpSYWwtSTY2eHhHZ0EybC1TNW8wYXdz?oc=5" target="_blank">https://news.google.com/rss/articles/CBMid0FVX3lxTE1vTnRhcmpEYkdhS0dqSDZ4aGJNVlg5MFlaMm1yeFdyNzQ5VENRdkRWclNlTnJxdlN4V1RzTWx1a1N5RjRneUEwdzVDdHlBcmVCSnBJeG9iekpadV9vUWN0QkpSYWwtSTY2eHhHZ0EybC1TNW8wYXdz?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">4. <a href="https://news.google.com/rss/articles/CBMiY0FVX3lxTE4tVWlYa284bmRndWFBMGJQaW1xODl3d2V3elpLaklLZHByLUlILWVFSG9BX2ZkRU9LWm53SnFhcEY0dFZJWF9CSjZKTVh1aks3LVVuU2U0ajNjQ3Z0X1JobjhJYw?oc=5" target="_blank">中国電力、火力発電所の保安力向上へ予兆保全にAI技術を使う実証を三隅発電所2号機で開始 - デジタルクロス</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiY0FVX3lxTE4tVWlYa284bmRndWFBMGJQaW1xODl3d2V3elpLaklLZHByLUlILWVFSG9BX2ZkRU9LWm53SnFhcEY0dFZJWF9CSjZKTVh1aks3LVVuU2U0ajNjQ3Z0X1JobjhJYw?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiY0FVX3lxTE4tVWlYa284bmRndWFBMGJQaW1xODl3d2V3elpLaklLZHByLUlILWVFSG9BX2ZkRU9LWm53SnFhcEY0dFZJWF9CSjZKTVh1aks3LVVuU2U0ajNjQ3Z0X1JobjhJYw?oc=5</a></p>
+      <div class="related-stocks">📈 関連銘柄: <a href="https://kabutan.jp/stock/?code=9504" target="_blank" class="stock-link">9504</a><span class="stock-company">中国電力</span></div>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">5. <a href="https://news.google.com/rss/articles/CBMiY0FVX3lxTE5aZngwenJSemprbHhYQ0pJaDRUR2p0SE1xQ0dmb2NYcWpOOUFNWDdsTmdIZERxeXVjSDdDem1HUWtBM25BRnJJTlJJWHV4UFQ1eUlmYjVTcTNrOHZmM0RCWFpNWQ?oc=5" target="_blank">ベトナムで国際AIフォーラム初開催、報道の信頼と未来を議論［社会］ - VIETJOベトナムニュース</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiY0FVX3lxTE5aZngwenJSemprbHhYQ0pJaDRUR2p0SE1xQ0dmb2NYcWpOOUFNWDdsTmdIZERxeXVjSDdDem1HUWtBM25BRnJJTlJJWHV4UFQ1eUlmYjVTcTNrOHZmM0RCWFpNWQ?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiY0FVX3lxTE5aZngwenJSemprbHhYQ0pJaDRUR2p0SE1xQ0dmb2NYcWpOOUFNWDdsTmdIZERxeXVjSDdDem1HUWtBM25BRnJJTlJJWHV4UFQ1eUlmYjVTcTNrOHZmM0RCWFpNWQ?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">6. <a href="https://news.google.com/rss/articles/CBMibEFVX3lxTE5lSlVpZmc2YUlWMVVGSzRCVVhjZ0l2WkVXdEF4Yzk1S1A4SkszSDBsd05BS2JldkFYMVg3Nm5VUHVLRzFZSnFHTE1aaFBUWDNWVjNEYkVxQXIzMlJFMlJueXF6NDNoZnA2OFktaA?oc=5" target="_blank">横須賀市、ＡＩ活用の傾聴相談を本格運用 ２４時間対応、相談員がフォロー - カナロコ</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMibEFVX3lxTE5lSlVpZmc2YUlWMVVGSzRCVVhjZ0l2WkVXdEF4Yzk1S1A4SkszSDBsd05BS2JldkFYMVg3Nm5VUHVLRzFZSnFHTE1aaFBUWDNWVjNEYkVxQXIzMlJFMlJueXF6NDNoZnA2OFktaA?oc=5" target="_blank">https://news.google.com/rss/articles/CBMibEFVX3lxTE5lSlVpZmc2YUlWMVVGSzRCVVhjZ0l2WkVXdEF4Yzk1S1A4SkszSDBsd05BS2JldkFYMVg3Nm5VUHVLRzFZSnFHTE1aaFBUWDNWVjNEYkVxQXIzMlJFMlJueXF6NDNoZnA2OFktaA?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">7. <a href="https://news.google.com/rss/articles/CBMiXEFVX3lxTE93bmE3dUd6Tk10eWZibklmYjdlbFJQblBVT0ZIdHlVellLS1Y5cVpHNmx5V3lKSUFsREh4dndFd1JIRExLWnhTZ1FmOFBvaWdWdk5ucU9VZ0tsbS0x?oc=5" target="_blank">（ＡＩの時代）「手に職を」大学より訓練校 米で高まる人気 身体使う仕事なら「奪われない」 - 朝日新聞</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiXEFVX3lxTE93bmE3dUd6Tk10eWZibklmYjdlbFJQblBVT0ZIdHlVellLS1Y5cVpHNmx5V3lKSUFsREh4dndFd1JIRExLWnhTZ1FmOFBvaWdWdk5ucU9VZ0tsbS0x?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiXEFVX3lxTE93bmE3dUd6Tk10eWZibklmYjdlbFJQblBVT0ZIdHlVellLS1Y5cVpHNmx5V3lKSUFsREh4dndFd1JIRExLWnhTZ1FmOFBvaWdWdk5ucU9VZ0tsbS0x?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">8. <a href="https://news.google.com/rss/articles/CBMifkFVX3lxTE1kS0x6WkEzTTdXYUFKNHJLdEEzSnBKTnpmWDNmVUpJNXZQU2w5elBjTm1PZVVDV2JIUkZrNFNZa3VfU3NPQnlTWFVMTGpSM0dfTzVENGhtX2RqamNHSjMxekg4cVlyamlBejFmWVVvSWRqMGctdFE0dHp1ZzFxZw?oc=5" target="_blank">仕事をしたのは誰? 「AI製示す電子透かし、利用者反発」など3本をお届けします - 日本経済新聞</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMifkFVX3lxTE1kS0x6WkEzTTdXYUFKNHJLdEEzSnBKTnpmWDNmVUpJNXZQU2w5elBjTm1PZVVDV2JIUkZrNFNZa3VfU3NPQnlTWFVMTGpSM0dfTzVENGhtX2RqamNHSjMxekg4cVlyamlBejFmWVVvSWRqMGctdFE0dHp1ZzFxZw?oc=5" target="_blank">https://news.google.com/rss/articles/CBMifkFVX3lxTE1kS0x6WkEzTTdXYUFKNHJLdEEzSnBKTnpmWDNmVUpJNXZQU2w5elBjTm1PZVVDV2JIUkZrNFNZa3VfU3NPQnlTWFVMTGpSM0dfTzVENGhtX2RqamNHSjMxekg4cVlyamlBejFmWVVvSWRqMGctdFE0dHp1ZzFxZw?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">9. <a href="https://news.google.com/rss/articles/CBMif0FVX3lxTE4teGhrbjZIMXp4aTBGTTd1OFhRRXBMQnpEQTJLY0pBb051UTJpY3hqSDBpanlTR2JXLWR3dkpXUTZxdjZuOGphd05CLVc5TlgtQmV1RkNoaXVZQ3lvbGhjOTdZaVNyMDJMNEx6UGZHd0xfYTJGZjh0SWU5Q1ZLLXc?oc=5" target="_blank">【図解】秋田に国内最大AIデータセンター＝整備費2兆円、企業・人材集積―洋上風力活用、国の支援も（時事通信） - Yahoo!ニュース</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMif0FVX3lxTE4teGhrbjZIMXp4aTBGTTd1OFhRRXBMQnpEQTJLY0pBb051UTJpY3hqSDBpanlTR2JXLWR3dkpXUTZxdjZuOGphd05CLVc5TlgtQmV1RkNoaXVZQ3lvbGhjOTdZaVNyMDJMNEx6UGZHd0xfYTJGZjh0SWU5Q1ZLLXc?oc=5" target="_blank">https://news.google.com/rss/articles/CBMif0FVX3lxTE4teGhrbjZIMXp4aTBGTTd1OFhRRXBMQnpEQTJLY0pBb051UTJpY3hqSDBpanlTR2JXLWR3dkpXUTZxdjZuOGphd05CLVc5TlgtQmV1RkNoaXVZQ3lvbGhjOTdZaVNyMDJMNEx6UGZHd0xfYTJGZjh0SWU5Q1ZLLXc?oc=5</a></p>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+<section class="source-section" id="kw_22">
+  <h2 class="source-title" style="border-left-color:#d83b01;"><span class="kw-badge" style="background:#d83b01;">🔑</span> 大規模言語モデル <span class="source-count">(2件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMiY0FVX3lxTFBITHg2aVlyaTFhY2ZKbmE0cDN2NWpDMk1nQ2hOWURvUXpaZy1yT1pkSnBCR2x3eFF0MW1wa0ZEWElVbk9ULXFTZkllc1NQbDRTYjExRXllLTlScHZXQzRaWVRrMNIBaEFVX3lxTE5JTkVkVHlOU1I3bFdxR250WGV4NEdwQnpzWnF2cWFMN04zRHo0Mm5NSnJUV012a0piYW5vTXhNTnBPdHY1VlNWdXd2OTRuaGh5TlR3Vms4UklndlNrQ2FkT3RoZW9JTWFM?oc=5" target="_blank">米アップル、中国向け独自AIをアリババと開発―Qwen併用でApple Intelligence展開へ - 財経新聞</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiY0FVX3lxTFBITHg2aVlyaTFhY2ZKbmE0cDN2NWpDMk1nQ2hOWURvUXpaZy1yT1pkSnBCR2x3eFF0MW1wa0ZEWElVbk9ULXFTZkllc1NQbDRTYjExRXllLTlScHZXQzRaWVRrMNIBaEFVX3lxTE5JTkVkVHlOU1I3bFdxR250WGV4NEdwQnpzWnF2cWFMN04zRHo0Mm5NSnJUV012a0piYW5vTXhNTnBPdHY1VlNWdXd2OTRuaGh5TlR3Vms4UklndlNrQ2FkT3RoZW9JTWFM?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiY0FVX3lxTFBITHg2aVlyaTFhY2ZKbmE0cDN2NWpDMk1nQ2hOWURvUXpaZy1yT1pkSnBCR2x3eFF0MW1wa0ZEWElVbk9ULXFTZkllc1NQbDRTYjExRXllLTlScHZXQzRaWVRrMNIBaEFVX3lxTE5JTkVkVHlOU1I3bFdxR250WGV4NEdwQnpzWnF2cWFMN04zRHo0Mm5NSnJUV012a0piYW5vTXhNTnBPdHY1VlNWdXd2OTRuaGh5TlR3Vms4UklndlNrQ2FkT3RoZW9JTWFM?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">2. <a href="https://news.google.com/rss/articles/CBMidEFVX3lxTE00TDlSNjFQYUtCRkRjbHQ3dndVdEFLLVQwSjJDTDh0bEF6X0VPbzFKeUk5NElfVnVJSktVUHNBY2hqVWhtbC1ZMm1LbUZwQmgwQ3NKVXZOeldCY2kwclItVkpoS3RhUkxuV2lVVkxWekxpLVJu?oc=5" target="_blank">サンフランシスコのAI店長が初めて人間の従業員を解雇 23回中17回の遅刻の裏に潜む管理のジレンマ - BigGo ファイナンス</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMidEFVX3lxTE00TDlSNjFQYUtCRkRjbHQ3dndVdEFLLVQwSjJDTDh0bEF6X0VPbzFKeUk5NElfVnVJSktVUHNBY2hqVWhtbC1ZMm1LbUZwQmgwQ3NKVXZOeldCY2kwclItVkpoS3RhUkxuV2lVVkxWekxpLVJu?oc=5" target="_blank">https://news.google.com/rss/articles/CBMidEFVX3lxTE00TDlSNjFQYUtCRkRjbHQ3dndVdEFLLVQwSjJDTDh0bEF6X0VPbzFKeUk5NElfVnVJSktVUHNBY2hqVWhtbC1ZMm1LbUZwQmgwQ3NKVXZOeldCY2kwclItVkpoS3RhUkxuV2lVVkxWekxpLVJu?oc=5</a></p>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+<section class="source-section" id="kw_23">
+  <h2 class="source-title" style="border-left-color:#5c2d91;"><span class="kw-badge" style="background:#5c2d91;">🔑</span> 株式分割 <span class="source-count">(2件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMihwFBVV95cUxPTFpvSXRQSXp4cEdsV0dUV0lfUy1Tc19iUmNnTGJ2ZlpWSGVIa2RGUkhsOW9kUEVvVE5RUHVfaF9RTThuLVRncHNSOVlkWkIxTzhlemJMbTRJNTMwT2xpcmlhM1ZkQ1l5cC01ZTFwbnRDQ0FRVXZXOFU1N256NUtyZTdnVkpQT1k?oc=5" target="_blank">本日注目の【株式分割】銘柄 (14日大引け後 発表分)(株探ニュース) - finance.yahoo.co.jp</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-meta item-related">関連キーワード: <span class="kw-tag">株式分割</span><span class="kw-tag">自社株買い</span></p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMihwFBVV95cUxPTFpvSXRQSXp4cEdsV0dUV0lfUy1Tc19iUmNnTGJ2ZlpWSGVIa2RGUkhsOW9kUEVvVE5RUHVfaF9RTThuLVRncHNSOVlkWkIxTzhlemJMbTRJNTMwT2xpcmlhM1ZkQ1l5cC01ZTFwbnRDQ0FRVXZXOFU1N256NUtyZTdnVkpQT1k?oc=5" target="_blank">https://news.google.com/rss/articles/CBMihwFBVV95cUxPTFpvSXRQSXp4cEdsV0dUV0lfUy1Tc19iUmNnTGJ2ZlpWSGVIa2RGUkhsOW9kUEVvVE5RUHVfaF9RTThuLVRncHNSOVlkWkIxTzhlemJMbTRJNTMwT2xpcmlhM1ZkQ1l5cC01ZTFwbnRDQ0FRVXZXOFU1N256NUtyZTdnVkpQT1k?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">2. <a href="https://news.google.com/rss/articles/CBMizAFBVV95cUxNUWpDbWEwdVRPQ3pmUGxIRGdUUDUtVHBpcWlFTjFNczB3RzBudzFJRERwQW1uSktKMlBJNHlwRi1ZRXZpTUY1dTRocjFWUUJpbTd3cUtOV2hMXzhTTkNOeUw5QVd4UC1lVUVCakpHcnBjdkR3bUlzZWRFdzJuMUVQbXJLeGQ1U0U0WnAzWDJ2TXV4XzJYQXF6Ym5USGtSWFltU3I0TVM2RkwzbVFqX0JwcjNObmRCdENfQUFGb1J5c3FiWVF0Zi10bW9Qb2k?oc=5" target="_blank">WORK Medical Technology Group（$WOK）の上半期決算結果および株式分割調整に関する重要な財務分析 - Moomoo</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMizAFBVV95cUxNUWpDbWEwdVRPQ3pmUGxIRGdUUDUtVHBpcWlFTjFNczB3RzBudzFJRERwQW1uSktKMlBJNHlwRi1ZRXZpTUY1dTRocjFWUUJpbTd3cUtOV2hMXzhTTkNOeUw5QVd4UC1lVUVCakpHcnBjdkR3bUlzZWRFdzJuMUVQbXJLeGQ1U0U0WnAzWDJ2TXV4XzJYQXF6Ym5USGtSWFltU3I0TVM2RkwzbVFqX0JwcjNObmRCdENfQUFGb1J5c3FiWVF0Zi10bW9Qb2k?oc=5" target="_blank">https://news.google.com/rss/articles/CBMizAFBVV95cUxNUWpDbWEwdVRPQ3pmUGxIRGdUUDUtVHBpcWlFTjFNczB3RzBudzFJRERwQW1uSktKMlBJNHlwRi1ZRXZpTUY1dTRocjFWUUJpbTd3cUtOV2hMXzhTTkNOeUw5QVd4UC1lVUVCakpHcnBjdkR3bUlzZWRFdzJuMUVQbXJLeGQ1U0U0WnAzWDJ2TXV4XzJYQXF6Ym5USGtSWFltU3I0TVM2RkwzbVFqX0JwcjNObmRCdENfQUFGb1J5c3FiWVF0Zi10bW9Qb2k?oc=5</a></p>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+<section class="source-section" id="kw_24">
+  <h2 class="source-title" style="border-left-color:#008272;"><span class="kw-badge" style="background:#008272;">🔑</span> 機械学習 <span class="source-count">(1件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMi5gFBVV95cUxPUk1PbEk2dVRsQUR3TE81QjhvZnVCazBOM0Rrc3NEcExmNzBDY1ZFcnBCNWZUTXIyTXh3dzZRZURDTWVfR2VTQTZXeUJaTXBOZnpPTkpMeXJ6TWxTOFQyZG5GQS1UTkcwaXVERmk3YjJLZUFaeWVHcHFOdVVGZkhlV21veHp3ajQtOHpvazh3OWd0dGt5YkpGVERyZl81cWNJMDVpOHBPUmRQSzB2SmtZN3h3X1dVSE1scmZBT0RQWlhHSUF0VHI2aTRYeVFzUWgzYzVNYVhzMGZDMG9QU1JhZDBVZjl0QQ?oc=5" target="_blank">AIアプリ市場規模、成長、トレンドにおける世界トップ10企業 - Spherical Insights</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMi5gFBVV95cUxPUk1PbEk2dVRsQUR3TE81QjhvZnVCazBOM0Rrc3NEcExmNzBDY1ZFcnBCNWZUTXIyTXh3dzZRZURDTWVfR2VTQTZXeUJaTXBOZnpPTkpMeXJ6TWxTOFQyZG5GQS1UTkcwaXVERmk3YjJLZUFaeWVHcHFOdVVGZkhlV21veHp3ajQtOHpvazh3OWd0dGt5YkpGVERyZl81cWNJMDVpOHBPUmRQSzB2SmtZN3h3X1dVSE1scmZBT0RQWlhHSUF0VHI2aTRYeVFzUWgzYzVNYVhzMGZDMG9QU1JhZDBVZjl0QQ?oc=5" target="_blank">https://news.google.com/rss/articles/CBMi5gFBVV95cUxPUk1PbEk2dVRsQUR3TE81QjhvZnVCazBOM0Rrc3NEcExmNzBDY1ZFcnBCNWZUTXIyTXh3dzZRZURDTWVfR2VTQTZXeUJaTXBOZnpPTkpMeXJ6TWxTOFQyZG5GQS1UTkcwaXVERmk3YjJLZUFaeWVHcHFOdVVGZkhlV21veHp3ajQtOHpvazh3OWd0dGt5YkpGVERyZl81cWNJMDVpOHBPUmRQSzB2SmtZN3h3X1dVSE1scmZBT0RQWlhHSUF0VHI2aTRYeVFzUWgzYzVNYVhzMGZDMG9QU1JhZDBVZjl0QQ?oc=5</a></p>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+<section class="source-section" id="kw_25">
+  <h2 class="source-title" style="border-left-color:#004b50;"><span class="kw-badge" style="background:#004b50;">🔑</span> 水素ガス <span class="source-count">(1件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMiT0FVX3lxTE9CS21WUjhlMXF2MzFTOU41dzU4WWJuUkx0TG1WTkJhY3NIcUdnN3dPZkxIUHYzcFRwRHVubVpFaW02cXZueUFpNG1SZ1NMQTQ?oc=5" target="_blank">水銀除去装置（MRU）の世界市場（2026年～2032年）、市場規模（天然ガス用MRU、LNG用MRU、コンデンセート用MRU、製油所ガス用MRU、水素ストリーム用MRU）・分析レポートを発表 - atpress.ne.jp</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-15</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiT0FVX3lxTE9CS21WUjhlMXF2MzFTOU41dzU4WWJuUkx0TG1WTkJhY3NIcUdnN3dPZkxIUHYzcFRwRHVubVpFaW02cXZueUFpNG1SZ1NMQTQ?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiT0FVX3lxTE9CS21WUjhlMXF2MzFTOU41dzU4WWJuUkx0TG1WTkJhY3NIcUdnN3dPZkxIUHYzcFRwRHVubVpFaW02cXZueUFpNG1SZ1NMQTQ?oc=5</a></p>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+<section class="source-section" id="kw_26">
+  <h2 class="source-title" style="border-left-color:#ca5010;"><span class="kw-badge" style="background:#ca5010;">🔑</span> 水素研究 <span class="source-count">(3件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMiW0FVX3lxTFBKZWZGb0R0d1lfXzZ3NE16MFhhcWpocVdwZlA0M2Jocl9NUXlfZFlBa3UyNFdybmdrMGpBRkRYRFotZG5xVmN6ZXlKN05DSGh3TmRVQ1VRTFVicjQ?oc=5" target="_blank">For Future 先端技術（219）サステナブル水素研究所 エネ転換推進に総合力 - 日刊工業新聞</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiW0FVX3lxTFBKZWZGb0R0d1lfXzZ3NE16MFhhcWpocVdwZlA0M2Jocl9NUXlfZFlBa3UyNFdybmdrMGpBRkRYRFotZG5xVmN6ZXlKN05DSGh3TmRVQ1VRTFVicjQ?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiW0FVX3lxTFBKZWZGb0R0d1lfXzZ3NE16MFhhcWpocVdwZlA0M2Jocl9NUXlfZFlBa3UyNFdybmdrMGpBRkRYRFotZG5xVmN6ZXlKN05DSGh3TmRVQ1VRTFVicjQ?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">2. <a href="https://news.google.com/rss/articles/CBMiT0FVX3lxTE8wSnhCVFZjVlpScV9zc1ZfVVNqc2tEUENHbXphWV82VHFERXhJVXF0ZDBvZi1JYldXaElHd2tqNUJTQ2FOVEYteElWa21MRlk?oc=5" target="_blank">水素燃料電池用グラファイトバイポーラプレートの世界市場（2026年～2032年）、市場規模（従来型黒鉛、膨張黒鉛）・分析レポートを発表 - atpress.ne.jp</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiT0FVX3lxTE8wSnhCVFZjVlpScV9zc1ZfVVNqc2tEUENHbXphWV82VHFERXhJVXF0ZDBvZi1JYldXaElHd2tqNUJTQ2FOVEYteElWa21MRlk?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiT0FVX3lxTE8wSnhCVFZjVlpScV9zc1ZfVVNqc2tEUENHbXphWV82VHFERXhJVXF0ZDBvZi1JYldXaElHd2tqNUJTQ2FOVEYteElWa21MRlk?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">3. <a href="https://news.google.com/rss/articles/CBMiV0FVX3lxTE9Eekl4Wlg1VGM0aXFyTFRZMkVVUGJZNV9CUXExUFhKTWpXZFdjdXdid1RtX3laeko5bTItV3hWZGJyX1htUTlJeDJkSVhSaktTLW05dWVUOA?oc=5" target="_blank">2026年8月17日 モノづくり - 日刊工業新聞</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiV0FVX3lxTE9Eekl4Wlg1VGM0aXFyTFRZMkVVUGJZNV9CUXExUFhKTWpXZFdjdXdid1RtX3laeko5bTItV3hWZGJyX1htUTlJeDJkSVhSaktTLW05dWVUOA?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiV0FVX3lxTE9Eekl4Wlg1VGM0aXFyTFRZMkVVUGJZNV9CUXExUFhKTWpXZFdjdXdid1RtX3laeko5bTItV3hWZGJyX1htUTlJeDJkSVhSaktTLW05dWVUOA?oc=5</a></p>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+<section class="source-section" id="kw_27">
+  <h2 class="source-title" style="border-left-color:#0099bc;"><span class="kw-badge" style="background:#0099bc;">🔑</span> 生成AI <span class="source-count">(6件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMif0FVX3lxTE9OMDNVbWE3eXhqbG51WUw1U0QtbXRzMEhwckc1UTd2NzBPYkpLVjh5eHc0UURYb3pLY3RQYjFyOWVvVEN2TWpGTjdqNzVRT3VjbFh4V2gtcm9NZXU1RzM1LWNCNGM3TFRCNkdaOWFUOTJKRWMtTzZqWDJGeWlDRTA?oc=5" target="_blank">【単独】再現可能？ トヨタ出身社長に聞く、年10億円を生んだ「生成AI活用」成功法則（ビジネス＋IT） - Yahoo!ニュース</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMif0FVX3lxTE9OMDNVbWE3eXhqbG51WUw1U0QtbXRzMEhwckc1UTd2NzBPYkpLVjh5eHc0UURYb3pLY3RQYjFyOWVvVEN2TWpGTjdqNzVRT3VjbFh4V2gtcm9NZXU1RzM1LWNCNGM3TFRCNkdaOWFUOTJKRWMtTzZqWDJGeWlDRTA?oc=5" target="_blank">https://news.google.com/rss/articles/CBMif0FVX3lxTE9OMDNVbWE3eXhqbG51WUw1U0QtbXRzMEhwckc1UTd2NzBPYkpLVjh5eHc0UURYb3pLY3RQYjFyOWVvVEN2TWpGTjdqNzVRT3VjbFh4V2gtcm9NZXU1RzM1LWNCNGM3TFRCNkdaOWFUOTJKRWMtTzZqWDJGeWlDRTA?oc=5</a></p>
+      <div class="related-stocks">📈 関連銘柄: <a href="https://kabutan.jp/stock/?code=7203" target="_blank" class="stock-link">7203</a><span class="stock-company">トヨタ自動車</span></div>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">2. <a href="https://news.google.com/rss/articles/CBMiiAFBVV95cUxNOUJ2SGlRUFZSNnEzNUwxRmJ3QmtQTHE2VFZVZlQ0SVdzcGwxOGhkVmpzSEZWTFhZZGNOUzJFSXN3S1lQTENWTjNGODFoZkhtZmEtaUxCaGMxWnV6RzNGYUU2aHhKaHFmMzRibkM3a1dJbjZrYW5fODdzWE1xMGd5Q0tCTlg1M05m?oc=5" target="_blank">なぜ生成AIを使っても「劇的な効率化」を感じられないのか？生産性3.8倍の差を生む“脱チャット”の壁 - Yahoo!ニュース</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiiAFBVV95cUxNOUJ2SGlRUFZSNnEzNUwxRmJ3QmtQTHE2VFZVZlQ0SVdzcGwxOGhkVmpzSEZWTFhZZGNOUzJFSXN3S1lQTENWTjNGODFoZkhtZmEtaUxCaGMxWnV6RzNGYUU2aHhKaHFmMzRibkM3a1dJbjZrYW5fODdzWE1xMGd5Q0tCTlg1M05m?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiiAFBVV95cUxNOUJ2SGlRUFZSNnEzNUwxRmJ3QmtQTHE2VFZVZlQ0SVdzcGwxOGhkVmpzSEZWTFhZZGNOUzJFSXN3S1lQTENWTjNGODFoZkhtZmEtaUxCaGMxWnV6RzNGYUU2aHhKaHFmMzRibkM3a1dJbjZrYW5fODdzWE1xMGd5Q0tCTlg1M05m?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">3. <a href="https://news.google.com/rss/articles/CBMiaEFVX3lxTE1LcTQ5SjhGX1l6dUQwcVpMWmw0a2tVZHpZUWlweDFJQkxnWll3OVBHcHpaMzBhaURISEp6YXN6NXViSlQxQ00zRFVvOURWRDlQTHlfbXBrSTJNS0VSM0E2ZXd5dzhuQW9B?oc=5" target="_blank">TAI、AI半導体「Sting Ray」の実機デモを披露 生成AIで評価ソフト開発も加速 - マイナビニュース</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiaEFVX3lxTE1LcTQ5SjhGX1l6dUQwcVpMWmw0a2tVZHpZUWlweDFJQkxnWll3OVBHcHpaMzBhaURISEp6YXN6NXViSlQxQ00zRFVvOURWRDlQTHlfbXBrSTJNS0VSM0E2ZXd5dzhuQW9B?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiaEFVX3lxTE1LcTQ5SjhGX1l6dUQwcVpMWmw0a2tVZHpZUWlweDFJQkxnWll3OVBHcHpaMzBhaURISEp6YXN6NXViSlQxQ00zRFVvOURWRDlQTHlfbXBrSTJNS0VSM0E2ZXd5dzhuQW9B?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">4. <a href="https://news.google.com/rss/articles/CBMibEFVX3lxTE9zUzdXQ2ZqczR1SC1ZeWlIcXdYWnNZNGNFVTBMUEl4a3pHMnJ1NjBCMnVhZXY5OGdwSUVIVUl5ZE5FVnRaM0twN3Z2SEJ4bkQ2UWRRZVJFLW1zTW1SWlpJSGp3QzVKeS01WVE5Nw?oc=5" target="_blank">生成AIで滅びるのは下請け技術者にあらず、SIerのSEこそお先真っ暗だ - 日経クロステック</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMibEFVX3lxTE9zUzdXQ2ZqczR1SC1ZeWlIcXdYWnNZNGNFVTBMUEl4a3pHMnJ1NjBCMnVhZXY5OGdwSUVIVUl5ZE5FVnRaM0twN3Z2SEJ4bkQ2UWRRZVJFLW1zTW1SWlpJSGp3QzVKeS01WVE5Nw?oc=5" target="_blank">https://news.google.com/rss/articles/CBMibEFVX3lxTE9zUzdXQ2ZqczR1SC1ZeWlIcXdYWnNZNGNFVTBMUEl4a3pHMnJ1NjBCMnVhZXY5OGdwSUVIVUl5ZE5FVnRaM0twN3Z2SEJ4bkQ2UWRRZVJFLW1zTW1SWlpJSGp3QzVKeS01WVE5Nw?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">5. <a href="https://news.google.com/rss/articles/CBMiWEFVX3lxTE1tbWVmUTRTSFRhMW9yQTJVcjlta1c2c2xQRklIWmNraUlKaUhuenZpWVpFa3p2VlI4dlY3NFNQYXdoNEh1VlJncW90aHhNa2x6V0dzemNtNk8?oc=5" target="_blank">WEST.重岡大毅 主演映画「5秒で完全犯罪を生成する方法」インタビュー 生成AIに思う、距離感と付き合い方 - 推し楽</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiWEFVX3lxTE1tbWVmUTRTSFRhMW9yQTJVcjlta1c2c2xQRklIWmNraUlKaUhuenZpWVpFa3p2VlI4dlY3NFNQYXdoNEh1VlJncW90aHhNa2x6V0dzemNtNk8?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiWEFVX3lxTE1tbWVmUTRTSFRhMW9yQTJVcjlta1c2c2xQRklIWmNraUlKaUhuenZpWVpFa3p2VlI4dlY3NFNQYXdoNEh1VlJncW90aHhNa2x6V0dzemNtNk8?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">6. <a href="https://news.google.com/rss/articles/CBMiX0FVX3lxTE5NbTZFYkc3Wkx0aDQ0bVExb0xYaFZRV0R3Njg3Y2Vyc3dMaXFveGtwenZYb0pXVUFlZDh0YTJFc1JMQjl0X2cwZUpyTURGNmdmZHlkeHdIaDk3OG1WMUdF?oc=5" target="_blank">もはやローカル動画生成AIの枠におさまらない。MiniMax H3の奥が深すぎる (1/6) - ASCII.jp</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiX0FVX3lxTE5NbTZFYkc3Wkx0aDQ0bVExb0xYaFZRV0R3Njg3Y2Vyc3dMaXFveGtwenZYb0pXVUFlZDh0YTJFc1JMQjl0X2cwZUpyTURGNmdmZHlkeHdIaDk3OG1WMUdF?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiX0FVX3lxTE5NbTZFYkc3Wkx0aDQ0bVExb0xYaFZRV0R3Njg3Y2Vyc3dMaXFveGtwenZYb0pXVUFlZDh0YTJFc1JMQjl0X2cwZUpyTURGNmdmZHlkeHdIaDk3OG1WMUdF?oc=5</a></p>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+<section class="source-section" id="kw_28">
+  <h2 class="source-title" style="border-left-color:#8764b8;"><span class="kw-badge" style="background:#8764b8;">🔑</span> 自動運転 <span class="source-count">(6件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMiSEFVX3lxTFBjUnFDWTFUT1AwajR6YjV4bk9Edm0xYjMzdGp2NlRjNXJQTDR5MS1ObHMtVnM3UXFvS0ZBbHZxMjV5NDAzajE1eQ?oc=5" target="_blank">自動運転エンジニア、そろそろ「用済み」？年収ピークはいつ？ - 自動運転ラボ</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiSEFVX3lxTFBjUnFDWTFUT1AwajR6YjV4bk9Edm0xYjMzdGp2NlRjNXJQTDR5MS1ObHMtVnM3UXFvS0ZBbHZxMjV5NDAzajE1eQ?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiSEFVX3lxTFBjUnFDWTFUT1AwajR6YjV4bk9Edm0xYjMzdGp2NlRjNXJQTDR5MS1ObHMtVnM3UXFvS0ZBbHZxMjV5NDAzajE1eQ?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">2. <a href="https://news.google.com/rss/articles/CBMiSEFVX3lxTE9JbjVFVHZxZ1BZMkpwdEZwR2lnTVE1OWg1d045WFNzalpfTnFFSjhkamZxUzdXUHlRMl9kQ2tTbWI2LXhTMWNUUg?oc=5" target="_blank">Google、関税102％でも「中国製EV」3,200台輸入 ロボタクシー向け - 自動運転ラボ</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiSEFVX3lxTE9JbjVFVHZxZ1BZMkpwdEZwR2lnTVE1OWg1d045WFNzalpfTnFFSjhkamZxUzdXUHlRMl9kQ2tTbWI2LXhTMWNUUg?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiSEFVX3lxTE9JbjVFVHZxZ1BZMkpwdEZwR2lnTVE1OWg1d045WFNzalpfTnFFSjhkamZxUzdXUHlRMl9kQ2tTbWI2LXhTMWNUUg?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">3. <a href="https://news.google.com/rss/articles/CBMif0FVX3lxTFA4cmEzcEwxYkNQZDZjMV9VTVItYjZ6aUJ6NXYwYjdmNi1tN3Y2R3FPWHBRSnlSM3l3Vm9ES3hxWDM3ZWxCbEdnT0lGMkZ6Z3hoZjJRVjRncUhKaEtQZldXbHpkbXFpNGpKNHJkSFpkUXlUZVZEUEt1MHlFcHJYc2M?oc=5" target="_blank">「太陽光×EV」あたりで知識が止まっていませんか!? 次世代エネルギーや自動運転の最新トレンドがサクッと早わかり！ - Yahoo!ニュース</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMif0FVX3lxTFA4cmEzcEwxYkNQZDZjMV9VTVItYjZ6aUJ6NXYwYjdmNi1tN3Y2R3FPWHBRSnlSM3l3Vm9ES3hxWDM3ZWxCbEdnT0lGMkZ6Z3hoZjJRVjRncUhKaEtQZldXbHpkbXFpNGpKNHJkSFpkUXlUZVZEUEt1MHlFcHJYc2M?oc=5" target="_blank">https://news.google.com/rss/articles/CBMif0FVX3lxTFA4cmEzcEwxYkNQZDZjMV9VTVItYjZ6aUJ6NXYwYjdmNi1tN3Y2R3FPWHBRSnlSM3l3Vm9ES3hxWDM3ZWxCbEdnT0lGMkZ6Z3hoZjJRVjRncUhKaEtQZldXbHpkbXFpNGpKNHJkSFpkUXlUZVZEUEt1MHlFcHJYc2M?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">4. <a href="https://news.google.com/rss/articles/CBMiiAFBVV95cUxNMjlHV1RnRm41b2pRX1dLeHBFNEZuOE9WajdyX0RQTkZDa2szYUgzTmJSb0dvamdZaF83Y3pMcTJ5ODdLbGpsUXdocVFSN29pU2hwUFZpMTl6SmwxSGNUdXRTS0ZNUWxCaFNhVE4wZ1hoc3R2eHR2VDN0Mk4tVUhleHdZSmNNaFJY?oc=5" target="_blank">トヨタ出資の中国ロボタクシー「小馬智行」、ウーバーと提携し欧州5都市で事業展開へ（浦上早苗） - エキスパート - Yahoo!ニュース</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiiAFBVV95cUxNMjlHV1RnRm41b2pRX1dLeHBFNEZuOE9WajdyX0RQTkZDa2szYUgzTmJSb0dvamdZaF83Y3pMcTJ5ODdLbGpsUXdocVFSN29pU2hwUFZpMTl6SmwxSGNUdXRTS0ZNUWxCaFNhVE4wZ1hoc3R2eHR2VDN0Mk4tVUhleHdZSmNNaFJY?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiiAFBVV95cUxNMjlHV1RnRm41b2pRX1dLeHBFNEZuOE9WajdyX0RQTkZDa2szYUgzTmJSb0dvamdZaF83Y3pMcTJ5ODdLbGpsUXdocVFSN29pU2hwUFZpMTl6SmwxSGNUdXRTS0ZNUWxCaFNhVE4wZ1hoc3R2eHR2VDN0Mk4tVUhleHdZSmNNaFJY?oc=5</a></p>
+      <div class="related-stocks">📈 関連銘柄: <a href="https://kabutan.jp/stock/?code=7203" target="_blank" class="stock-link">7203</a><span class="stock-company">トヨタ自動車</span></div>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">5. <a href="https://news.google.com/rss/articles/CBMiQkFVX3lxTE1CcHFvVEpWUHJIaEZLOERPN3dWSTNic3NSNTh0RVpmbldiV0RYcWxZaFVNMXpqRko1TFV0VzBoMFVxdw?oc=5" target="_blank">「ロボタクシー」都内で試験運行へ - ニュースイッチ by 日刊工業新聞社</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMiQkFVX3lxTE1CcHFvVEpWUHJIaEZLOERPN3dWSTNic3NSNTh0RVpmbldiV0RYcWxZaFVNMXpqRko1TFV0VzBoMFVxdw?oc=5" target="_blank">https://news.google.com/rss/articles/CBMiQkFVX3lxTE1CcHFvVEpWUHJIaEZLOERPN3dWSTNic3NSNTh0RVpmbldiV0RYcWxZaFVNMXpqRko1TFV0VzBoMFVxdw?oc=5</a></p>
+      <div class="related-stocks">📈 関連銘柄: <a href="https://kabutan.jp/stock/?code=7267" target="_blank" class="stock-link">7267</a><span class="stock-company">本田技研工業</span></div>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">6. <a href="https://news.google.com/rss/articles/CBMidEFVX3lxTE9iY0VCMnVIbXpBRlVpdnJlVVRUYmNMQVlRUllabnJOYTJRRC0yamxSSTlZUV9XelZ3bGJ4ekdMaF9CSWpSeUtZbWhhTVpBRW4zSkFmaFNzWUVDeEN5bXc0SUhxUEF6NFNRbDBBVl9MR0lvci1B?oc=5" target="_blank">トルコ製レベル4自動運転バス、オランダのテーマパークで乗客輸送を開始 - BigGo ファイナンス</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMidEFVX3lxTE9iY0VCMnVIbXpBRlVpdnJlVVRUYmNMQVlRUllabnJOYTJRRC0yamxSSTlZUV9XelZ3bGJ4ekdMaF9CSWpSeUtZbWhhTVpBRW4zSkFmaFNzWUVDeEN5bXc0SUhxUEF6NFNRbDBBVl9MR0lvci1B?oc=5" target="_blank">https://news.google.com/rss/articles/CBMidEFVX3lxTE9iY0VCMnVIbXpBRlVpdnJlVVRUYmNMQVlRUllabnJOYTJRRC0yamxSSTlZUV9XelZ3bGJ4ekdMaF9CSWpSeUtZbWhhTVpBRW4zSkFmaFNzWUVDeEN5bXc0SUhxUEF6NFNRbDBBVl9MR0lvci1B?oc=5</a></p>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+<section class="source-section" id="kw_29">
+  <h2 class="source-title" style="border-left-color:#038387;"><span class="kw-badge" style="background:#038387;">🔑</span> 自社株買い <span class="source-count">(3件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMihwFBVV95cUxNLWo3WmpWRkgtWmZEVzFpRGtISHU0SUx3dzJ0bUpvc1hBV1VpQ3V6d1VCTmFLSGp2NHRUbVlXVGZaeUdodHdBSGlhZmw0b2hSR24zRmpIVnEtWUM3cWloaFp4anBKLVJsRl84cmVrWDZPZ1hDSVQ1ay1pWEgwS0E5SzhOQ1NNUUU?oc=5" target="_blank">第一カッターなど、8月14日の自社株買い発表(フィスコ) - finance.yahoo.co.jp</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMihwFBVV95cUxNLWo3WmpWRkgtWmZEVzFpRGtISHU0SUx3dzJ0bUpvc1hBV1VpQ3V6d1VCTmFLSGp2NHRUbVlXVGZaeUdodHdBSGlhZmw0b2hSR24zRmpIVnEtWUM3cWloaFp4anBKLVJsRl84cmVrWDZPZ1hDSVQ1ay1pWEgwS0E5SzhOQ1NNUUU?oc=5" target="_blank">https://news.google.com/rss/articles/CBMihwFBVV95cUxNLWo3WmpWRkgtWmZEVzFpRGtISHU0SUx3dzJ0bUpvc1hBV1VpQ3V6d1VCTmFLSGp2NHRUbVlXVGZaeUdodHdBSGlhZmw0b2hSR24zRmpIVnEtWUM3cWloaFp4anBKLVJsRl84cmVrWDZPZ1hDSVQ1ay1pWEgwS0E5SzhOQ1NNUUU?oc=5</a></p>
+      <div class="related-stocks">📈 関連銘柄: <a href="https://kabutan.jp/stock/?code=1716" target="_blank" class="stock-link">1716</a><span class="stock-company">第一カッター興業</span></div>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">2. <a href="https://news.google.com/rss/articles/CBMihwFBVV95cUxNaUlCVmNrTW1iaktMeVFCMmdwQVFROVpCak1uT2I4UENKa2VaNXJzM25MeDF5RHI5SFlOVGxGNWtHejFpN2JLOTlvQk8xVTBQemV4M2draU5vVTRJRW9Gbk4xdGxmeG56YUx5MmtYalpybTNMN1dibkFoY3Y2X2l2a0MyRUl0VFU?oc=5" target="_blank">【杉村富生の短期相場観測】 ─アクティビストが株式市場を救う！(株探ニュース) - finance.yahoo.co.jp</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMihwFBVV95cUxNaUlCVmNrTW1iaktMeVFCMmdwQVFROVpCak1uT2I4UENKa2VaNXJzM25MeDF5RHI5SFlOVGxGNWtHejFpN2JLOTlvQk8xVTBQemV4M2draU5vVTRJRW9Gbk4xdGxmeG56YUx5MmtYalpybTNMN1dibkFoY3Y2X2l2a0MyRUl0VFU?oc=5" target="_blank">https://news.google.com/rss/articles/CBMihwFBVV95cUxNaUlCVmNrTW1iaktMeVFCMmdwQVFROVpCak1uT2I4UENKa2VaNXJzM25MeDF5RHI5SFlOVGxGNWtHejFpN2JLOTlvQk8xVTBQemV4M2draU5vVTRJRW9Gbk4xdGxmeG56YUx5MmtYalpybTNMN1dibkFoY3Y2X2l2a0MyRUl0VFU?oc=5</a></p>
+    </div>
+    <div class="result-item">
+      <h3 class="item-title">3. <a href="https://news.google.com/rss/articles/CBMidEFVX3lxTFBBVFV4OFlFdmMySHlqZm9Pd2ZuT05KSmlhMDNTeGkzYUw3NmtFQ0JhcW5xV1ZabzEzbms3ZUJNdHlBTzNqUE13ZGxXN1hQMUl5djV6N1pKSGt2eENLR1JqaUpyQ05GS3NUcy1vbEZsR0VUandq?oc=5" target="_blank">グローブ・ライフの25億ドル自社株買い拡大、脆弱な引受業務の隠れ蓑かどうかが試される - BigGo ファイナンス</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMidEFVX3lxTFBBVFV4OFlFdmMySHlqZm9Pd2ZuT05KSmlhMDNTeGkzYUw3NmtFQ0JhcW5xV1ZabzEzbms3ZUJNdHlBTzNqUE13ZGxXN1hQMUl5djV6N1pKSGt2eENLR1JqaUpyQ05GS3NUcy1vbEZsR0VUandq?oc=5" target="_blank">https://news.google.com/rss/articles/CBMidEFVX3lxTFBBVFV4OFlFdmMySHlqZm9Pd2ZuT05KSmlhMDNTeGkzYUw3NmtFQ0JhcW5xV1ZabzEzbms3ZUJNdHlBTzNqUE13ZGxXN1hQMUl5djV6N1pKSGt2eENLR1JqaUpyQ05GS3NUcy1vbEZsR0VUandq?oc=5</a></p>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+<section class="source-section" id="kw_30">
+  <h2 class="source-title" style="border-left-color:#c43e1c;"><span class="kw-badge" style="background:#c43e1c;">🔑</span> 著作権 AI <span class="source-count">(1件)</span></h2>
+  <div class="result-list">
+    <div class="result-item">
+      <h3 class="item-title">1. <a href="https://news.google.com/rss/articles/CBMilwFBVV95cUxPYV91R1dxSEFWLUlUeU1rOURIT1JTc3o2eHlDazJnNVBJR2wyX1V5Y3c0WjcxVENMN2tzcDAxcWdzTERjbG9INGtqb25QMXBOdTFKamRkQ0ZBWEVwM1dwYWdSMzBUbkFuTGpXQ3JNUC1ncWdpVWVwQktIYURESjlZS3BiOExfNEVXcEFKZURSdEVuaHpQeEpV?oc=5" target="_blank">著作権、AI、そしてデジタル空間におけるKOC（キーオピニオンリーダー）とKOL（キーオピニオンリーダー）の法的責任。 - Vietnam.vn</a></h3>
+      <p class="item-meta"><strong>日付:</strong> 2026-08-16</p>
+      <p class="item-url"><strong>URL:</strong> <a href="https://news.google.com/rss/articles/CBMilwFBVV95cUxPYV91R1dxSEFWLUlUeU1rOURIT1JTc3o2eHlDazJnNVBJR2wyX1V5Y3c0WjcxVENMN2tzcDAxcWdzTERjbG9INGtqb25QMXBOdTFKamRkQ0ZBWEVwM1dwYWdSMzBUbkFuTGpXQ3JNUC1ncWdpVWVwQktIYURESjlZS3BiOExfNEVXcEFKZURSdEVuaHpQeEpV?oc=5" target="_blank">https://news.google.com/rss/articles/CBMilwFBVV95cUxPYV91R1dxSEFWLUlUeU1rOURIT1JTc3o2eHlDazJnNVBJR2wyX1V5Y3c0WjcxVENMN2tzcDAxcWdzTERjbG9INGtqb25QMXBOdTFKamRkQ0ZBWEVwM1dwYWdSMzBUbkFuTGpXQ3JNUC1ncWdpVWVwQktIYURESjlZS3BiOExfNEVXcEFKZURSdEVuaHpQeEpV?oc=5</a></p>
+    </div>
+  </div>
+  <div class="back-to-top"><a href="#top">▲ キーワード一覧へ戻る</a></div>
+</section>
+
+
+        <footer>
+            レポート生成日時: 2026-08-17 08:03:42
+        </footer>
+    </div>
+</body>
+</html>
