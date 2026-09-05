@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>雨雲レーダー | 現在地</title>
+<meta name="theme-color" content="#0f3460">
+<meta name="description" content="現在地の雨雲レーダー。気象庁 高解像度降水ナウキャスト（実況＋1時間先の予報）を地図上でアニメーション表示します。">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+        --panel: rgba(16, 22, 42, 0.86);
+        --border: rgba(255, 255, 255, 0.15);
+        --text: #eef2ff;
+        --muted: rgba(238, 242, 255, 0.6);
+        --accent: #4d8bff;
+    }
+    html, body { height: 100%; }
+    body {
+        font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic UI', sans-serif;
+        background: #0f1424;
+        color: var(--text);
+        overflow: hidden;
+    }
+    #map { position: absolute; inset: 0; background: #0f1424; }
+
+    .panel {
+        position: absolute;
+        left: 0; right: 0;
+        background: var(--panel);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        z-index: 1000;
+    }
+    /* --- 上部バー --- */
+    .top {
+        top: 0;
+        padding: 10px 14px calc(10px) 14px;
+        padding-top: calc(10px + env(safe-area-inset-top));
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .title { font-size: 1.02em; font-weight: 700; letter-spacing: 0.03em; white-space: nowrap; margin-right: auto; }
+    .status {
+        font-size: 0.74em; color: var(--muted);
+        order: 3; flex: 1 1 100%; min-width: 0;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .status.warn { color: #ffc861; }
+    select {
+        background: rgba(255, 255, 255, 0.09);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 5px 8px;
+        font-size: 0.78em;
+        font-family: inherit;
+    }
+    select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+    option { background: #16213e; }
+
+    /* --- 現在地ボタン --- */
+    #locateBtn {
+        position: absolute;
+        right: 12px;
+        z-index: 1000;
+        width: 46px; height: 46px;
+        border-radius: 50%;
+        border: 1px solid var(--border);
+        background: var(--panel);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        color: var(--text);
+        font-size: 1.35em;
+        line-height: 1;
+        cursor: pointer;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+    }
+    #locateBtn:active { transform: scale(0.94); }
+    #locateBtn.busy { color: var(--accent); animation: blink 1s infinite; }
+    @keyframes blink { 50% { opacity: 0.35; } }
+
+    /* --- 下部パネル --- */
+    .bottom {
+        bottom: 0;
+        padding: 10px 14px;
+        padding-bottom: calc(10px + env(safe-area-inset-bottom));
+        border-top: 1px solid var(--border);
+    }
+    .timeRow { display: flex; align-items: center; gap: 10px; }
+    #playBtn {
+        width: 40px; height: 40px; flex: none;
+        border-radius: 50%;
+        border: 1px solid var(--border);
+        background: rgba(77, 139, 255, 0.22);
+        color: var(--text);
+        font-size: 1em;
+        cursor: pointer;
+    }
+    #playBtn:active { transform: scale(0.94); }
+    .timeText { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+    #timeLabel { font-size: 1.12em; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .tag {
+        font-size: 0.68em; font-weight: 700;
+        padding: 2px 7px; border-radius: 999px;
+        border: 1px solid var(--border);
+        white-space: nowrap;
+    }
+    .tag.past { background: rgba(255, 255, 255, 0.12); }
+    .tag.now { background: rgba(77, 255, 158, 0.2); border-color: rgba(77, 255, 158, 0.5); }
+    .tag.forecast { background: rgba(255, 200, 97, 0.2); border-color: rgba(255, 200, 97, 0.5); }
+    #relLabel { font-size: 0.78em; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+    input[type=range] {
+        -webkit-appearance: none; appearance: none;
+        width: 100%; height: 22px; background: transparent; cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+        height: 5px; border-radius: 3px;
+        background: linear-gradient(to right, rgba(255,255,255,0.35) 0 var(--nowPct, 50%), rgba(255,200,97,0.45) var(--nowPct, 50%) 100%);
+    }
+    input[type=range]::-moz-range-track {
+        height: 5px; border-radius: 3px;
+        background: linear-gradient(to right, rgba(255,255,255,0.35) 0 var(--nowPct, 50%), rgba(255,200,97,0.45) var(--nowPct, 50%) 100%);
+    }
+    input[type=range]::-webkit-slider-thumb {
+        -webkit-appearance: none; appearance: none;
+        width: 18px; height: 18px; margin-top: -7px;
+        border-radius: 50%; background: #fff;
+        border: 3px solid var(--accent);
+    }
+    input[type=range]::-moz-range-thumb {
+        width: 18px; height: 18px;
+        border-radius: 50%; background: #fff;
+        border: 3px solid var(--accent);
+    }
+    #slider { margin-top: 4px; }
+    .scale { display: flex; justify-content: space-between; font-size: 0.68em; color: var(--muted); margin-top: -2px; }
+
+    .legend { margin-top: 8px; }
+    .legendBar { display: flex; height: 9px; border-radius: 3px; overflow: hidden; }
+    .legendBar span { flex: 1; }
+    .legendLabels { display: flex; font-size: 0.62em; color: var(--muted); margin-top: 3px; }
+    .legendLabels span { flex: 1; text-align: right; }
+    .legendLabels span:first-child { text-align: left; }
+    .legendTitle { font-size: 0.66em; color: var(--muted); margin-bottom: 3px; }
+
+    .subRow {
+        display: flex; align-items: center; gap: 10px;
+        margin-top: 7px; font-size: 0.7em; color: var(--muted);
+    }
+    .subRow input[type=range] { flex: 1; height: 18px; }
+    .credit {
+        margin-top: 6px; font-size: 0.62em; color: rgba(238, 242, 255, 0.38);
+        line-height: 1.5;
+    }
+    .credit a { color: inherit; }
+
+    /* 現在地マーカー */
+    .meDot {
+        width: 16px; height: 16px; border-radius: 50%;
+        background: #4d8bff; border: 2px solid #fff;
+        box-shadow: 0 0 0 rgba(77, 139, 255, 0.6);
+        animation: pulse 2.2s infinite;
+    }
+    @keyframes pulse {
+        0%   { box-shadow: 0 0 0 0 rgba(77, 139, 255, 0.55); }
+        70%  { box-shadow: 0 0 0 16px rgba(77, 139, 255, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(77, 139, 255, 0); }
+    }
+    .leaflet-control-zoom { border: none !important; }
+    .leaflet-control-zoom a {
+        background: var(--panel) !important;
+        color: var(--text) !important;
+        border: 1px solid var(--border) !important;
+    }
+    @media (max-width: 400px) {
+        .title { font-size: 0.9em; }
+        .top { gap: 6px; padding-left: 10px; padding-right: 10px; }
+        select { padding: 5px 4px; font-size: 0.74em; }
+    }
+</style>
+</head>
+<body>
+<div id="map"></div>
+
+<header class="panel top">
+    <div class="title">🌧️ 雨雲レーダー</div>
+    <div class="status" id="status">現在地を取得中…</div>
+    <select id="sourceSel" title="レーダーの提供元">
+        <option value="auto">🌧 自動</option>
+        <option value="jma">🌧 気象庁</option>
+        <option value="rv">🌧 世界</option>
+    </select>
+    <select id="baseSel" title="地図の種類">
+        <option value="pale">🗺 淡色</option>
+        <option value="std">🗺 標準</option>
+        <option value="photo">🗺 写真</option>
+        <option value="osm">🗺 OSM</option>
+    </select>
+</header>
+
+<button id="locateBtn" title="現在地へ移動" aria-label="現在地へ移動">◎</button>
+
+<footer class="panel bottom">
+    <div class="timeRow">
+        <button id="playBtn" aria-label="再生・一時停止">▶</button>
+        <div class="timeText">
+            <span id="timeLabel">--:--</span>
+            <span class="tag past" id="kindTag">読み込み中</span>
+            <span id="relLabel"></span>
+        </div>
+    </div>
+    <input type="range" id="slider" min="0" max="0" value="0" step="1" aria-label="時刻">
+    <div class="scale"><span id="scaleStart">-1時間</span><span id="scaleNow">現在</span><span id="scaleEnd">+1時間</span></div>
+
+    <div class="legend">
+        <div class="legendTitle" id="legendTitle">降水強度（mm/h）</div>
+        <div class="legendBar" id="legendBar"></div>
+        <div class="legendLabels" id="legendLabels"></div>
+    </div>
+
+    <div class="subRow">
+        <span>濃さ</span>
+        <input type="range" id="opacitySlider" min="20" max="100" value="75" step="5" aria-label="雨雲の濃さ">
+        <span id="updatedLabel"></span>
+    </div>
+    <div class="credit" id="credit"></div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(function () {
+    'use strict';
+
+    // ------------------------------------------------------------------
+    // 定数
+    // ------------------------------------------------------------------
+    var TOKYO = [35.681236, 139.767125];
+    var JAPAN = { minLat: 20, maxLat: 47, minLon: 120, maxLon: 155 };
+    var JMA_BASE = 'https://www.jma.go.jp/bosai/jmatile/data/nowc/';
+    var RV_API = 'https://api.rainviewer.com/public/weather-maps.json';
+    var REFRESH_MS = 5 * 60 * 1000;   // 5分ごとに最新フレームを取り込む
+    var STEP_MS = 450;                // アニメーションのコマ送り間隔
+    var HOLD_MS = 1300;               // 最終コマでの停止時間
+
+    // 気象庁の降水強度カラースケール
+    var JMA_LEGEND = [
+        { color: '#F2F2FF', label: '1' },
+        { color: '#A0D2FF', label: '5' },
+        { color: '#218CFF', label: '10' },
+        { color: '#0041FF', label: '20' },
+        { color: '#FAF500', label: '30' },
+        { color: '#FF9900', label: '50' },
+        { color: '#FF2800', label: '80' },
+        { color: '#B40068', label: '' }
+    ];
+    var RV_LEGEND = [
+        { color: '#93d3a2', label: '' },
+        { color: '#4fb06d', label: '弱' },
+        { color: '#f2e750', label: '' },
+        { color: '#f3a63a', label: '強' },
+        { color: '#e3502f', label: '' },
+        { color: '#a32c8e', label: '猛烈' }
+    ];
+
+    // ------------------------------------------------------------------
+    // 状態
+    // ------------------------------------------------------------------
+    var map, meMarker, meCircle;
+    var frames = [];          // { time, kind, url, opts, layer, loaded }
+    var current = -1;
+    var playing = false;
+    var timer = null;
+    var opacity = 0.75;
+    var activeSource = null;  // 'jma' | 'rv'
+    var lastLoadedAt = 0;
+    var loadToken = 0;
+    var baseLayer = null;
+
+    var $ = function (id) { return document.getElementById(id); };
+
+    // ------------------------------------------------------------------
+    // 保存された設定 / 位置
+    // ------------------------------------------------------------------
+    function store(key, value) {
+        try {
+            if (value === undefined) {
+                var v = localStorage.getItem('rr_' + key);
+                return v === null ? undefined : JSON.parse(v);
+            }
+            localStorage.setItem('rr_' + key, JSON.stringify(value));
+        } catch (e) { /* プライベートモード等では黙って諦める */ }
+    }
+
+    var prefSource = store('source') || 'auto';
+    var prefBase = store('base') || 'pale';
+    var savedPos = store('pos');
+    var savedOpacity = store('opacity');
+    if (typeof savedOpacity === 'number') { opacity = savedOpacity; }
+
+    // ------------------------------------------------------------------
+    // 地図
+    // ------------------------------------------------------------------
+    var BASE_DEFS = {
+        pale: {
+            url: 'https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png',
+            opts: { maxZoom: 18, maxNativeZoom: 18, minZoom: 4 },
+            credit: '地理院タイル（淡色地図）'
+        },
+        std: {
+            url: 'https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png',
+            opts: { maxZoom: 18, maxNativeZoom: 18, minZoom: 4 },
+            credit: '地理院タイル（標準地図）'
+        },
+        photo: {
+            url: 'https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg',
+            opts: { maxZoom: 18, maxNativeZoom: 18, minZoom: 4 },
+            credit: '地理院タイル（シームレス空中写真）'
+        },
+        osm: {
+            url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+            opts: { maxZoom: 19, maxNativeZoom: 19, minZoom: 2 },
+            credit: '&copy; OpenStreetMap contributors'
+        }
+    };
+
+    function setBase(key, auto) {
+        var def = BASE_DEFS[key] || BASE_DEFS.pale;
+        if (baseLayer) { map.removeLayer(baseLayer); }
+        baseLayer = L.tileLayer(def.url, L.extend({ zIndex: 100 }, def.opts)).addTo(map);
+        prefBase = key;
+        if (!auto) { store('base', key); store('baseUserSet', true); }
+        $('baseSel').value = key;
+        updateCredit();
+    }
+
+    function initMap() {
+        var center = (savedPos && savedPos.lat) ? [savedPos.lat, savedPos.lon] : TOKYO;
+        var zoom = (savedPos && savedPos.lat) ? 10 : 8;
+        map = L.map('map', {
+            zoomControl: false,
+            attributionControl: false,
+            preferCanvas: true
+        }).setView(center, zoom);
+        L.control.zoom({ position: 'topleft' }).addTo(map);
+        setBase(prefBase, true);
+        layoutControls();
+        if (savedPos && savedPos.lat) { setMe(savedPos.lat, savedPos.lon, savedPos.acc, true); }
+    }
+
+    // パネルの高さに合わせてズーム/現在地ボタンの位置を調整する
+    function layoutControls() {
+        var topH = document.querySelector('.top').offsetHeight;
+        var botH = document.querySelector('.bottom').offsetHeight;
+        var zoomCtl = document.querySelector('.leaflet-control-zoom');
+        if (zoomCtl) { zoomCtl.style.marginTop = (topH + 10) + 'px'; }
+        $('locateBtn').style.bottom = (botH + 12) + 'px';
+    }
+
+    // ------------------------------------------------------------------
+    // 現在地
+    // ------------------------------------------------------------------
+    function setMe(lat, lon, acc, quiet) {
+        if (!meMarker) {
+            meMarker = L.marker([lat, lon], {
+                icon: L.divIcon({ className: '', html: '<div class="meDot"></div>', iconSize: [16, 16], iconAnchor: [8, 8] }),
+                interactive: false,
+                zIndexOffset: 1000
+            }).addTo(map);
+            meCircle = L.circle([lat, lon], {
+                radius: acc || 0, color: '#4d8bff', weight: 1,
+                fillColor: '#4d8bff', fillOpacity: 0.1, interactive: false
+            }).addTo(map);
+        } else {
+            meMarker.setLatLng([lat, lon]);
+            meCircle.setLatLng([lat, lon]).setRadius(acc || 0);
+        }
+        if (!quiet) {
+            map.setView([lat, lon], Math.max(map.getZoom(), 10), { animate: true });
+        }
+    }
+
+    function inJapan(lat, lon) {
+        return lat >= JAPAN.minLat && lat <= JAPAN.maxLat && lon >= JAPAN.minLon && lon <= JAPAN.maxLon;
+    }
+
+    var geoWatchdog = null;
+    function locate() {
+        if (!navigator.geolocation) {
+            setStatus('この端末では現在地を取得できません', true);
+            decideSource(null);
+            return;
+        }
+        var btn = $('locateBtn');
+        btn.classList.add('busy');
+        setStatus('現在地を取得中…');
+        // 許可ダイアログが放置されるとコールバックが来ないので自前で見張る
+        if (geoWatchdog) { clearTimeout(geoWatchdog); }
+        geoWatchdog = setTimeout(function () {
+            geoWatchdog = null;
+            btn.classList.remove('busy');
+            setStatus('現在地の許可を待っています。◎ボタンで再取得できます'
+                + (savedPos ? '（前回の位置を表示中）' : '（東京を表示中）'), true);
+        }, 15000);
+        navigator.geolocation.getCurrentPosition(function (pos) {
+            if (geoWatchdog) { clearTimeout(geoWatchdog); geoWatchdog = null; }
+            btn.classList.remove('busy');
+            var c = pos.coords;
+            setMe(c.latitude, c.longitude, c.accuracy, false);
+            // 地理院タイルは日本国内のみなので、国外では自動で OSM に切り替える
+            if (!store('baseUserSet') && !inJapan(c.latitude, c.longitude) && prefBase !== 'osm') {
+                setBase('osm', true);
+            }
+            savedPos = { lat: c.latitude, lon: c.longitude, acc: c.accuracy };
+            store('pos', savedPos);
+            setStatus('現在地を表示中（精度 約' + Math.round(c.accuracy) + 'm）');
+            decideSource(c);
+        }, function (err) {
+            if (geoWatchdog) { clearTimeout(geoWatchdog); geoWatchdog = null; }
+            btn.classList.remove('busy');
+            var msg = '現在地を取得できませんでした';
+            if (err && err.code === 1) { msg = '位置情報が許可されていません。ブラウザの設定で許可してください'; }
+            else if (err && err.code === 3) { msg = '現在地の取得がタイムアウトしました'; }
+            setStatus(msg + (savedPos ? '（前回の位置を表示中）' : '（東京を表示中）'), true);
+            decideSource(savedPos ? { latitude: savedPos.lat, longitude: savedPos.lon } : null);
+        }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 });
+    }
+
+    // 位置に応じて自動でレーダーの提供元を決める
+    function decideSource(coords) {
+        var want;
+        if (prefSource === 'jma' || prefSource === 'rv') {
+            want = prefSource;
+        } else {
+            var lat = coords ? (coords.latitude !== undefined ? coords.latitude : coords.lat) : TOKYO[0];
+            var lon = coords ? (coords.longitude !== undefined ? coords.longitude : coords.lon) : TOKYO[1];
+            want = inJapan(lat, lon) ? 'jma' : 'rv';
+        }
+        if (want !== activeSource) { loadFrames(want); }
+    }
+
+    // ------------------------------------------------------------------
+    // フレーム取得
+    // ------------------------------------------------------------------
+    function fetchJSON(url) {
+        return fetch(url, { cache: 'no-store' }).then(function (r) {
+            if (!r.ok) { throw new Error('HTTP ' + r.status); }
+            return r.json();
+        });
+    }
+
+    // "20260905T100000Z" -> Date
+    function parseJmaTime(s) {
+        return new Date(Date.UTC(
+            +s.slice(0, 4), +s.slice(4, 6) - 1, +s.slice(6, 8),
+            +s.slice(9, 11), +s.slice(11, 13), +s.slice(13, 15)
+        ));
+    }
+
+    function loadJmaFrames() {
+        return Promise.all([
+            fetchJSON(JMA_BASE + 'targetTimes_N1.json'),
+            fetchJSON(JMA_BASE + 'targetTimes_N2.json').catch(function () { return []; })
+        ]).then(function (res) {
+            var n1 = res[0] || [], n2 = res[1] || [];
+            var hasHrpns = function (e) { return !e.elements || e.elements.indexOf('hrpns') >= 0; };
+            var mk = function (e, member, kind) {
+                return {
+                    time: parseJmaTime(e.validtime),
+                    kind: kind,
+                    url: JMA_BASE + e.basetime + '/' + member + '/' + e.validtime + '/surf/hrpns/{z}/{x}/{y}.png',
+                    opts: { maxNativeZoom: 10, minNativeZoom: 4, maxZoom: 18 }
+                };
+            };
+            var byTime = function (a, b) { return a.time - b.time; };
+
+            // 実況（過去1時間・5分間隔）
+            var past = n1.filter(hasHrpns).map(function (e) { return mk(e, 'none', 'past'); })
+                .sort(byTime).slice(-12);
+            var lastPast = past.length ? past[past.length - 1].time.getTime() : 0;
+
+            // 予報（最新の基準時刻のみ・最大1時間先）
+            var forecast = [];
+            if (n2.length) {
+                var latestBase = n2.map(function (e) { return e.basetime; }).sort().pop();
+                forecast = n2.filter(function (e) { return e.basetime === latestBase && hasHrpns(e); })
+                    .map(function (e) { return mk(e, 'immed', 'forecast'); })
+                    .filter(function (f) { return f.time.getTime() > lastPast; })
+                    .sort(byTime).slice(0, 12);
+            }
+            if (!past.length && !forecast.length) { throw new Error('no frames'); }
+            return past.concat(forecast);
+        });
+    }
+
+    function loadRvFrames() {
+        return fetchJSON(RV_API).then(function (j) {
+            var host = j.host || 'https://tilecache.rainviewer.com';
+            var mk = function (f, kind) {
+                return {
+                    time: new Date(f.time * 1000),
+                    kind: kind,
+                    url: host + f.path + '/256/{z}/{x}/{y}/4/1_1.png',
+                    opts: { maxNativeZoom: 10, minNativeZoom: 1, maxZoom: 19 }
+                };
+            };
+            var past = ((j.radar && j.radar.past) || []).map(function (f) { return mk(f, 'past'); });
+            var soon = ((j.radar && j.radar.nowcast) || []).map(function (f) { return mk(f, 'forecast'); });
+            var all = past.slice(-13).concat(soon);
+            if (!all.length) { throw new Error('no frames'); }
+            return all;
+        });
+    }
+
+    function clearFrames() {
+        frames.forEach(function (f) { if (f.layer) { map.removeLayer(f.layer); } });
+        frames = [];
+        current = -1;
+    }
+
+    function loadFrames(source, isRefresh) {
+        var token = ++loadToken;
+        if (!isRefresh) { setStatusSub('レーダーを読み込み中…'); }
+        var loader = source === 'rv' ? loadRvFrames : loadJmaFrames;
+
+        return loader().then(function (list) {
+            if (token !== loadToken) { return; }
+            // 表示中の時刻をなるべく保つ（自動更新でコマが飛ばないように）
+            var keepTime = (isRefresh && frames[current]) ? frames[current].time.getTime() : null;
+            var wasPlaying = playing;
+            pause();
+            clearFrames();
+            frames = list;
+            activeSource = source;
+            lastLoadedAt = Date.now();
+            renderLegend(source);
+            updateCredit();
+            buildSlider();
+            var idx = nowIndex();
+            if (keepTime !== null) {
+                for (var i = 0; i < frames.length; i++) {
+                    if (frames[i].time.getTime() === keepTime) { idx = i; break; }
+                }
+            }
+            show(idx, true);
+            preloadAll();
+            if (wasPlaying) { play(true); }
+            if (source === 'rv' && prefSource === 'auto') {
+                setStatusSub('世界の雨雲（RainViewer）を表示中');
+            } else {
+                setStatusSub('');
+            }
+        }).catch(function (err) {
+            if (token !== loadToken) { return; }
+            if (source === 'jma') {
+                // 気象庁が取得できない場合は世界レーダーへ自動切替
+                setStatus('気象庁のレーダーを取得できませんでした。RainViewer に切り替えます', true);
+                return loadFrames('rv', isRefresh);
+            }
+            setStatus('レーダーの取得に失敗しました（' + (err && err.message ? err.message : 'error') + '）', true);
+        });
+    }
+
+    // 最後の「実況」コマ
+    function nowIndex() {
+        var idx = 0;
+        for (var i = 0; i < frames.length; i++) {
+            if (frames[i].kind === 'past') { idx = i; }
+        }
+        return idx;
+    }
+
+    // ------------------------------------------------------------------
+    // 表示
+    // ------------------------------------------------------------------
+    function layerFor(f) {
+        if (!f.layer) {
+            f.layer = L.tileLayer(f.url, L.extend({
+                opacity: 0,
+                zIndex: 400,
+                updateWhenIdle: false,
+                keepBuffer: 1,
+                className: 'radarTile'
+            }, f.opts || {}));
+            f.layer.on('load', function () { f.loaded = true; });
+            f.layer.addTo(map);
+        }
+        return f.layer;
+    }
+
+    function applyVisible(f) {
+        frames.forEach(function (g) {
+            if (g.layer && g !== f) { g.layer.setOpacity(0); }
+        });
+        if (f.layer) { f.layer.setOpacity(opacity); }
+    }
+
+    function show(i, immediate) {
+        if (!frames.length) { return; }
+        current = (i + frames.length) % frames.length;
+        var f = frames[current];
+        var layer = layerFor(f);
+        if (f.loaded || immediate) {
+            applyVisible(f);
+        } else {
+            // 読み込み前に切り替えると地図が透けるので、届いてから差し替える
+            var done = false;
+            var swap = function () {
+                if (done) { return; }
+                done = true;
+                if (frames[current] === f) { applyVisible(f); }
+            };
+            layer.once('load', swap);
+            setTimeout(swap, 1500);
+        }
+        layerFor(frames[(current + 1) % frames.length]);   // 次のコマを先読み
+        updateTimeUI();
+    }
+
+    // 全コマをゆっくり先読みしてアニメーションを滑らかにする
+    function preloadAll() {
+        var token = loadToken;
+        frames.forEach(function (f, i) {
+            setTimeout(function () {
+                if (token === loadToken) { layerFor(f); }
+            }, 250 * i);
+        });
+    }
+
+    function fmtJst(date, withDate) {
+        var opt = { timeZone: 'Asia/Tokyo', hour: '2-digit', minute: '2-digit', hour12: false };
+        if (withDate) { opt.month = 'numeric'; opt.day = 'numeric'; opt.weekday = 'short'; }
+        return new Intl.DateTimeFormat('ja-JP', opt).format(date);
+    }
+
+    function updateTimeUI() {
+        var f = frames[current];
+        if (!f) { return; }
+        var nowT = frames[nowIndex()].time.getTime();
+        var diffMin = Math.round((f.time.getTime() - nowT) / 60000);
+
+        $('timeLabel').textContent = fmtJst(f.time, true);
+        var tag = $('kindTag');
+        if (diffMin === 0) {
+            tag.textContent = '実況（最新）';
+            tag.className = 'tag now';
+        } else if (f.kind === 'forecast') {
+            tag.textContent = '予報';
+            tag.className = 'tag forecast';
+        } else {
+            tag.textContent = '実況';
+            tag.className = 'tag past';
+        }
+        if (diffMin === 0) { $('relLabel').textContent = ''; }
+        else if (diffMin > 0) { $('relLabel').textContent = diffMin + '分後'; }
+        else { $('relLabel').textContent = Math.abs(diffMin) + '分前'; }
+        $('slider').value = String(current);
+        $('updatedLabel').textContent = '更新 ' + fmtJst(new Date(lastLoadedAt), false);
+    }
+
+    function buildSlider() {
+        var s = $('slider');
+        s.min = '0';
+        s.max = String(Math.max(0, frames.length - 1));
+        var ni = nowIndex();
+        var pct = frames.length > 1 ? (ni / (frames.length - 1)) * 100 : 100;
+        s.style.setProperty('--nowPct', pct.toFixed(1) + '%');
+        if (frames.length) {
+            var span = Math.round((frames[0].time - frames[nowIndex()].time) / 60000);
+            $('scaleStart').textContent = span + '分';
+            var last = Math.round((frames[frames.length - 1].time - frames[nowIndex()].time) / 60000);
+            $('scaleEnd').textContent = last > 0 ? '+' + last + '分' : '現在';
+        }
+    }
+
+    function renderLegend(source) {
+        var defs = source === 'rv' ? RV_LEGEND : JMA_LEGEND;
+        $('legendTitle').textContent = source === 'rv'
+            ? '雨の強さ（RainViewer）'
+            : '降水強度（mm/h）';
+        $('legendBar').innerHTML = defs.map(function (d) {
+            return '<span style="background:' + d.color + '"></span>';
+        }).join('');
+        $('legendLabels').innerHTML = defs.map(function (d) {
+            return '<span>' + (d.label || '') + '</span>';
+        }).join('');
+    }
+
+    function updateCredit() {
+        var radar = activeSource === 'rv'
+            ? '雨雲: <a href="https://www.rainviewer.com/" target="_blank" rel="noopener">RainViewer</a>'
+            : '雨雲: 気象庁 高解像度降水ナウキャスト';
+        var base = (BASE_DEFS[prefBase] || BASE_DEFS.pale).credit;
+        $('credit').innerHTML = radar + ' ／ 地図: ' + base;
+    }
+
+    // ------------------------------------------------------------------
+    // 再生
+    // ------------------------------------------------------------------
+    function play(silent) {
+        playing = true;
+        $('playBtn').textContent = '❚❚';
+        if (timer) { clearTimeout(timer); }
+        var tick = function () {
+            if (!playing) { return; }
+            var next = current + 1;
+            var wait = STEP_MS;
+            if (next >= frames.length) { next = 0; wait = STEP_MS; }
+            else if (next === frames.length - 1) { wait = HOLD_MS; }
+            show(next);
+            timer = setTimeout(tick, wait);
+        };
+        timer = setTimeout(tick, silent ? STEP_MS : 120);
+    }
+
+    function pause() {
+        playing = false;
+        $('playBtn').textContent = '▶';
+        if (timer) { clearTimeout(timer); timer = null; }
+    }
+
+    // ------------------------------------------------------------------
+    // UI イベント
+    // ------------------------------------------------------------------
+    var statusMain = '', statusSub = '';
+    function setStatus(text, warn) {
+        statusMain = text;
+        $('status').classList.toggle('warn', !!warn);
+        renderStatus();
+    }
+    function setStatusSub(text) { statusSub = text; renderStatus(); }
+    function renderStatus() {
+        $('status').textContent = [statusMain, statusSub].filter(Boolean).join(' / ');
+    }
+
+    function bindUI() {
+        $('playBtn').addEventListener('click', function () { playing ? pause() : play(); });
+
+        $('slider').addEventListener('input', function () {
+            pause();
+            show(parseInt(this.value, 10), true);
+        });
+
+        $('opacitySlider').value = String(Math.round(opacity * 100));
+        $('opacitySlider').addEventListener('input', function () {
+            opacity = parseInt(this.value, 10) / 100;
+            store('opacity', opacity);
+            if (frames[current]) { applyVisible(frames[current]); }
+        });
+
+        $('sourceSel').value = prefSource;
+        $('sourceSel').addEventListener('change', function () {
+            prefSource = this.value;
+            store('source', prefSource);
+            setStatusSub('');
+            decideSource(savedPos || null);
+        });
+
+        $('baseSel').addEventListener('change', function () { setBase(this.value); });
+
+        $('locateBtn').addEventListener('click', function () { locate(); });
+
+        window.addEventListener('resize', layoutControls);
+
+        // タブに戻ったとき / 5分ごとに最新のコマを取り込む
+        setInterval(function () {
+            if (document.hidden || !activeSource) { return; }
+            loadFrames(activeSource, true);
+        }, REFRESH_MS);
+
+        document.addEventListener('visibilitychange', function () {
+            if (!document.hidden && activeSource && Date.now() - lastLoadedAt > REFRESH_MS) {
+                loadFrames(activeSource, true);
+            }
+        });
+
+        // キーボード操作（PC）
+        document.addEventListener('keydown', function (e) {
+            if (e.target && /INPUT|SELECT/.test(e.target.tagName)) { return; }
+            if (e.key === ' ') { e.preventDefault(); playing ? pause() : play(); }
+            else if (e.key === 'ArrowRight') { pause(); show(current + 1, true); }
+            else if (e.key === 'ArrowLeft') { pause(); show(current - 1, true); }
+        });
+    }
+
+    // ------------------------------------------------------------------
+    // 起動
+    // ------------------------------------------------------------------
+    initMap();
+    bindUI();
+    renderLegend(prefSource === 'rv' ? 'rv' : 'jma');
+    // 位置の許可を待たずにレーダーを先に読み込む（保存済みの位置があればそれを基準に）
+    decideSource(savedPos ? { lat: savedPos.lat, lon: savedPos.lon } : null);
+    locate();
+    setTimeout(function () { if (frames.length) { play(true); } }, 2500);
+})();
+</script>
+</body>
+</html>
