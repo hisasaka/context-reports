@@ -248,6 +248,7 @@
     var REFRESH_MS = 5 * 60 * 1000;   // 5分ごとに最新フレームを取り込む
     var STEP_MS = 450;                // アニメーションのコマ送り間隔
     var HOLD_MS = 1300;               // 最終コマでの停止時間
+    var VERSION = 'ver.2026-09-08b';  // 画面下に表示。キャッシュの新旧を見分けるため
 
     // 気象庁の降水強度カラースケール
     var JMA_LEGEND = [
@@ -466,6 +467,30 @@
         ));
     }
 
+    // 気象庁の時刻は UTC 表記として解釈しているが、万一 JST 表記だった場合は
+    // 全コマが9時間先にずれてしまう。端末の時計から見て明らかに不自然なときは
+    // 9時間ずらして辻褄を合わせる（表記が変わっても正しく表示できるように）。
+    var HOUR_MS = 3600000;
+    var clockShift = 0;
+
+    function shiftAll(list, ms) {
+        if (!ms) { return list; }
+        list.forEach(function (f) { f.time = new Date(f.time.getTime() + ms); });
+        return list;
+    }
+
+    function fitToClock(sortedPast) {
+        clockShift = 0;
+        if (!sortedPast.length) { return sortedPast; }
+        var newest = sortedPast[sortedPast.length - 1].time.getTime();
+        var now = Date.now();
+        var asIs = Math.abs(now - newest);
+        var shifted = Math.abs(now - (newest - 9 * HOUR_MS));
+        // 9時間ずらしたほうが明らかに近いときだけ補正する
+        if (shifted + 30 * 60000 < asIs) { clockShift = -9 * HOUR_MS; }
+        return shiftAll(sortedPast, clockShift);
+    }
+
     function loadJmaFrames() {
         return Promise.all([
             fetchJSON(JMA_BASE + 'targetTimes_N1.json'),
@@ -491,8 +516,10 @@
             var valid = function (f) { return !isNaN(f.time.getTime()); };
 
             // 実況（過去1時間・5分間隔）
-            var past = n1.filter(hasHrpns).map(function (e) { return mk(e, 'past'); })
-                .filter(valid).sort(byTime).slice(-12);
+            var allPast = n1.filter(hasHrpns).map(function (e) { return mk(e, 'past'); })
+                .filter(valid).sort(byTime);
+            fitToClock(allPast);
+            var past = allPast.slice(-12);
             var lastPast = past.length ? past[past.length - 1].time.getTime() : 0;
 
             // 予報（最新の基準時刻のみ・最大1時間先）
@@ -501,8 +528,10 @@
                 var latestBase = n2.map(function (e) { return e.basetime; }).sort().pop();
                 forecast = n2.filter(function (e) { return e.basetime === latestBase && hasHrpns(e); })
                     .map(function (e) { return mk(e, 'forecast'); })
-                    .filter(function (f) { return valid(f) && f.time.getTime() > lastPast; })
-                    .sort(byTime).slice(0, 12);
+                    .filter(valid).sort(byTime);
+                shiftAll(forecast, clockShift);
+                forecast = forecast.filter(function (f) { return f.time.getTime() > lastPast; })
+                    .slice(0, 12);
             }
             if (!past.length && !forecast.length) { throw new Error('no frames'); }
             return past.concat(forecast);
@@ -721,7 +750,7 @@
             ? '雨雲: <a href="https://www.rainviewer.com/" target="_blank" rel="noopener">RainViewer</a>'
             : '雨雲: 気象庁 高解像度降水ナウキャスト';
         var base = (BASE_DEFS[prefBase] || BASE_DEFS.pale).credit;
-        $('credit').innerHTML = radar + ' ／ 地図: ' + base;
+        $('credit').innerHTML = radar + ' ／ 地図: ' + base + ' ／ ' + VERSION;
     }
 
     // ------------------------------------------------------------------
