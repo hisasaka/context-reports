@@ -455,11 +455,14 @@
         });
     }
 
-    // "20260905T100000Z" -> Date
+    // 気象庁の時刻は UTC の "20260908110000"（YYYYMMDDHHmmss）形式。
+    // 区切り付きの "20260908T110000Z" でも読めるよう、数字だけを取り出して解釈する。
     function parseJmaTime(s) {
+        var d = String(s).replace(/\D/g, '');
+        if (d.length < 12) { return new Date(NaN); }
         return new Date(Date.UTC(
-            +s.slice(0, 4), +s.slice(4, 6) - 1, +s.slice(6, 8),
-            +s.slice(9, 11), +s.slice(11, 13), +s.slice(13, 15)
+            +d.slice(0, 4), +d.slice(4, 6) - 1, +d.slice(6, 8),
+            +d.slice(8, 10), +d.slice(10, 12), +d.slice(12, 14) || 0
         ));
     }
 
@@ -470,19 +473,26 @@
         ]).then(function (res) {
             var n1 = res[0] || [], n2 = res[1] || [];
             var hasHrpns = function (e) { return !e.elements || e.elements.indexOf('hrpns') >= 0; };
-            var mk = function (e, member, kind) {
-                return {
+            var tileUrl = function (e, member) {
+                return JMA_BASE + e.basetime + '/' + member + '/' + e.validtime + '/surf/hrpns/{z}/{x}/{y}.png';
+            };
+            var mk = function (e, kind) {
+                var f = {
                     time: parseJmaTime(e.validtime),
                     kind: kind,
-                    url: JMA_BASE + e.basetime + '/' + member + '/' + e.validtime + '/surf/hrpns/{z}/{x}/{y}.png',
+                    url: tileUrl(e, 'none'),
                     opts: { maxNativeZoom: 10, minNativeZoom: 4, maxZoom: 18 }
                 };
+                // 予報は member が 'immed' の場合もあるため、1枚も読めなければそちらへ切り替える
+                if (kind === 'forecast') { f.altUrl = tileUrl(e, 'immed'); }
+                return f;
             };
             var byTime = function (a, b) { return a.time - b.time; };
+            var valid = function (f) { return !isNaN(f.time.getTime()); };
 
             // 実況（過去1時間・5分間隔）
-            var past = n1.filter(hasHrpns).map(function (e) { return mk(e, 'none', 'past'); })
-                .sort(byTime).slice(-12);
+            var past = n1.filter(hasHrpns).map(function (e) { return mk(e, 'past'); })
+                .filter(valid).sort(byTime).slice(-12);
             var lastPast = past.length ? past[past.length - 1].time.getTime() : 0;
 
             // 予報（最新の基準時刻のみ・最大1時間先）
@@ -490,8 +500,8 @@
             if (n2.length) {
                 var latestBase = n2.map(function (e) { return e.basetime; }).sort().pop();
                 forecast = n2.filter(function (e) { return e.basetime === latestBase && hasHrpns(e); })
-                    .map(function (e) { return mk(e, 'immed', 'forecast'); })
-                    .filter(function (f) { return f.time.getTime() > lastPast; })
+                    .map(function (e) { return mk(e, 'forecast'); })
+                    .filter(function (f) { return valid(f) && f.time.getTime() > lastPast; })
                     .sort(byTime).slice(0, 12);
             }
             if (!past.length && !forecast.length) { throw new Error('no frames'); }
@@ -589,6 +599,20 @@
                 className: 'radarTile'
             }, f.opts || {}));
             f.layer.on('load', function () { f.loaded = true; });
+            if (f.altUrl) {
+                // 圏外のタイルは常に 404 になるため、「1枚も読めていない」ときだけ URL を差し替える
+                var ok = 0, ng = 0;
+                f.layer.on('tileload', function () { ok++; });
+                f.layer.on('tileerror', function () {
+                    ng++;
+                    if (ok === 0 && ng >= 4 && f.altUrl) {
+                        var alt = f.altUrl;
+                        f.altUrl = null;
+                        f.url = alt;
+                        f.layer.setUrl(alt);
+                    }
+                });
+            }
             f.layer.addTo(map);
         }
         return f.layer;
